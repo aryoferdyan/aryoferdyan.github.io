@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UTBK/UKPPPG PCK Quiz</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .quiz-title {
+            color: #007bff;
+            font-weight: 700;
+        }
+
+        .card {
+            border-radius: 0.75rem;
+            border: none;
+        }
+
+        .card-body {
+            padding: 2.5rem;
+        }
+
+        .question-number {
+            font-size: 1.1rem;
+        }
+
+        .question-text {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #343a40;
+        }
+
+        .option-button {
+            width: 100%;
+            text-align: left;
+            margin-bottom: 0.75rem;
+            padding: 1rem 1.5rem;
+            border-radius: 0.5rem;
+            font-size: 1.1rem;
+            transition: all 0.2s ease-in-out;
+        }
+
+        .option-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        /* Styles for correct/incorrect answers */
+        .option-button.correct {
+            background-color: #d4edda; /* Light green */
+            border-color: #28a745;
+            color: #155724;
+            font-weight: bold;
+        }
+
+        .option-button.incorrect {
+            background-color: #f8d7da; /* Light red */
+            border-color: #dc3545;
+            color: #721c24;
+            font-weight: bold;
+        }
+
+        .option-button.selected {
+            border: 2px solid #007bff; /* Highlight selected option */
+        }
+
+        #submit-answer, #next-question, #restart-quiz, #review-answers, #restart-quiz-results, #back-to-results {
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        #result-container h3 {
+            font-weight: 700;
+        }
+
+        #result-container p {
+            color: #343a40;
+        }
+
+        .review-item {
+            background-color: #e9ecef;
+            padding: 1.25rem;
+            margin-bottom: 1rem;
+            border-radius: 0.5rem;
+            border: 1px solid #dee2e6;
+        }
+
+        .review-item p {
+            margin-bottom: 0.5rem;
+        }
+
+        .review-item .your-answer {
+            font-weight: bold;
+        }
+
+        .review-item .correct-answer {
+            color: #28a745;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="text-center mb-4 quiz-title">Kumpulan Soal Pedagogical Content Knowledge UTBK UKPPPG</h1>
+        <hr>
+
+        <div id="quiz-container" class="card shadow-lg">
+            <div class="card-body">
+                <div id="question-area">
+                    <p class="question-number text-muted mb-2"></p>
+                    <h5 class="card-title question-text">Memuat soal...</h5>
+                    <div id="options-container" class="mt-4">
+                        </div>
+                </div>
+                <div class="d-grid gap-2 mt-4">
+                    <button id="submit-answer" class="btn btn-primary btn-lg">Jawab</button>
+                    <button id="next-question" class="btn btn-success btn-lg d-none">Soal Selanjutnya</button>
+                    <button id="restart-quiz" class="btn btn-info btn-lg d-none">Mulai Ulang Quiz</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="result-container" class="card shadow-lg mt-5 d-none">
+            <div class="card-body text-center">
+                <h3 class="card-title text-success">Quiz Selesai!</h3>
+                <p class="fs-4">Skor Anda: <span id="score">0</span> / <span id="total-questions">0</span></p>
+                <button id="review-answers" class="btn btn-secondary mt-3">Lihat Jawaban</button>
+                <button id="restart-quiz-results" class="btn btn-info mt-3">Mulai Ulang Quiz</button>
+            </div>
+        </div>
+
+        <div id="answer-review-container" class="card shadow-lg mt-5 d-none">
+            <div class="card-body">
+                <h3 class="card-title mb-4">Review Jawaban Anda</h3>
+                <div id="review-list">
+                    </div>
+                <button id="back-to-results" class="btn btn-secondary mt-4">Kembali ke Hasil</button>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVpdpbljqNVdva/r+rpjQYfWAASkQhEUK7pMDN" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <script>
+        const questions = [
+            {
+                question: "1. Guru kelas 5 pada semester 1 sedang merumuskan indikator ketercapaian kompetensi keterampilan 4.4 Menyajikan hasil penggalian tentang manfaat persatuan dan kesatuan untuk membangun kerukunan. Rumusan indikator pencapaian kompetensi yang sesuai adalah….",
+                options: [
+                    "Membacakan dengan intonasi yang benar tentang hasil penggalian tentang manfaat persatuan dan kesatuan untuk membangun kerukunan",
+                    "Menganalisis manfaat persatuan dan kesatuan untuk membangun kerukunan",
+                    "Menyusun laporan hasil penggalian tentang manfaat persatuan dan kesatuan untuk membangun kerukunan",
+                    "Mempresentasikan di depan kelas Hasil penggalian tentang manfaat persatuan dan kesatuan untuk membangun kerukunan",
+                    "Mendiskusikan manfaat persatuan dan kesatuan untuk membangun kerukunan"
+                ],
+                answer: "Mempresentasikan di depan kelas Hasil penggalian tentang manfaat persatuan dan kesatuan untuk membangun kerukunan"
+            },
+            {
+                question: "2. Salah satu rumusan indikator yang sesuai dengan kompetensi dasar mencermati penggunaan kalimat efektif dalam surat Seruan (ulang tahun, aktivitas sekolah kenaikan kelas dll) adalah….",
+                options: [
+                    "Menyimak kalimat yang tidak efektif dan ejaan yang tidak benar",
+                    "mengerti ciri-ciri kalimat efektif dan penggunaan ejaan yang benar",
+                    "menafsirkan informasi yang ada dalam surat seruan",
+                    "memahami ciri kalimat yang tidak efektif dan ejaan yang tidak benar",
+                    "mengidentifikasi kalimat yang tidak efektif dan ejaan yang tidak benar"
+                ],
+                answer: "mengidentifikasi kalimat yang tidak efektif dan ejaan yang tidak benar"
+            },
+            {
+                question: "3. Ibu Gusti seorang guru kelas 5 SD melaksanakan pembelajaran dengan mengajarkan indikator menganalisis hubungan antar komponen ekosistem dan jaring-jaring makanan di lingkungan sekitar. Supaya dapat mengukur kemampuan hots pada peserta didiknya Maka rumusan indikator soal yang tepat untuk dikembangkan menjadi soal adalah….",
+                options: [
+                    "Menjelaskan rantai makanan pada ekosistem tertentu dan penyebab kepunahan suatu komponen akibat proses makan dan dimakan",
+                    "Menjelaskan peran organisme tertentu dalam suatu rantai makanan yang disajikan dalam gambar",
+                    "Memprediksi perubahan yang terjadi pada ekosistem tertentu bila salah satu komponen Dalam rantai makanan punah atau berkembang dengan pesat",
+                    "Menyebutkan Organisme yang dapat menduduki bagian pada rantai makanan",
+                    "Memberi contoh organisme tertentu dalam suatu rantai makanan yang disajikan dalam gambar"
+                ],
+                answer: "Memprediksi perubahan yang terjadi pada ekosistem tertentu bila salah satu komponen Dalam rantai makanan punah atau berkembang dengan pesat"
+            },
+            {
+                question: "4. Salah satu KD muatan matematika di SD kelas 4 adalah menjelaskan faktor dan kelipatan suatu bilangan. Indikator ketercapaian kompetensi yang kurang sesuai untuk KD tersebut adalah…..",
+                options: [
+                    "Menentukan kelipatan suatu bilangan",
+                    "Menentukan faktor dari suatu bilangan",
+                    "Menentukan faktor prima suatu bilangan",
+                    "Memberikan contoh faktor dan bukan faktor suatu bilangan",
+                    "Menjelaskan kelipatan suatu bilangan"
+                ],
+                answer: "Memberikan contoh faktor dan bukan faktor suatu bilangan"
+            },
+            {
+                question: "5. Dalam RPP yang disusun oleh guru tertulis tujuan pembelajaran: 'Setelah melaksanakan proses pembelajaran dan menggali informasi melalui diskusi materi tentang teks eksplanasi dengan benar.' Rumusan tersebut belum lengkap pada bagian....",
+                options: [
+                    "Condition",
+                    "Behavior",
+                    "Degree",
+                    "Audience",
+                    "Motivation"
+                ],
+                answer: "Behavior"
+            },
+            {
+                question: "6. Bu Widya guru kelas II, pada semester gasal sedang menyusun muatan PPKn pada KD Menceritakan arti gambar Pada lambang negara 'Garuda Pancasila'. Rumusan indikator Pencapaian Kompetensi keterampilan yang sesuai adalah….",
+                options: [
+                    "Menyajikan dalam bentuk tabel arti gambar pada lambang negara 'Garuda Pancasila'.",
+                    "Menceritakan secara lisan arti gambar pada lambang negara 'Garuda Pancasila' secara lengkap dan tepat/sesuai.",
+                    "menjelaskan arti gambar pada lambang negara 'Garuda Pancasila' dengan kalimat yang efektif dan kosa kata yang tepat.",
+                    "Menganalisis arti gambar pada lambang negara 'Garuda Pancasila' dengan menghubungkan arti gambar pada lambang dengan kehidupan sehari-hari",
+                    "Menceritakan arti gambar pada lambang negara 'Garuda Pancasila' dengan suara lantang dan intonasi yang benar."
+                ],
+                answer: "Menceritakan secara lisan arti gambar pada lambang negara 'Garuda Pancasila' secara lengkap dan tepat/sesuai."
+            },
+            {
+                question: "7. Ibu Nur seorang guru kelas VI SD melaksanakan pembelajaran dengan mengajarkan indikator menganalisis cara makhluk hidup menyesuaikan diri dengan lingkungan. Supaya dapat mengukur kemampuan HOTs pada peserta didiknya, maka rumusan indikator soal yang sangat tepat untuk dikembangkan menjadi soal adalah….",
+                options: [
+                    "Menjelaskan tujuan tumbuhan menyesuaikan diri dengan cara tertentu",
+                    "Menyebutkan contoh hewan menyesuaikan diri dengan lingkungannya",
+                    "Mengidentifikasi cara hewan tertentu menyesuaikan diri terhadap lingkungannya",
+                    "Menguraikan mekanisme tumbuhan tertentu menyesuaikan diri dengan lingkungannya",
+                    "Menunjukkan pasangan yang tepat antara nama hewan dan cara adaptasinya"
+                ],
+                answer: "Menguraikan mekanisme tumbuhan tertentu menyesuaikan diri dengan lingkungannya"
+            },
+            {
+                question: "8. Bu Yuri sedang menyusun rencana pembelajaran pada kompetensi dasar materi Matematika Kelas 5 yaitu 'menjelaskan skala melalui denah'. Indikator Pencapaian kegiatan pembelajaran yang sesuai untuk kompetensi tersebut adalah…",
+                options: [
+                    "Menjelaskan pengertian denah suatu benda atau daerah",
+                    "Menggambarkan dan menjelaskan denah suatu benda atau daerah",
+                    "Menentukan besarnya luas area pada suatu denah berskala",
+                    "Menentukan denah peta yang sesuai dengan lingkungan sekitar",
+                    "Menentukan jarak sebenarnya dengan menggunakan skala pada suatu denah"
+                ],
+                answer: "Menggambarkan dan menjelaskan denah suatu benda atau daerah"
+            },
+            {
+                question: "9. Pak Adi sedang mencermati hasil tes siswa dengan mendapati bahwa Siswa masih kesulitan menjawab dengan benar untuk soal Rini les renang setiap 8 hari sekali Andi les setiap 15 hari sekali dan Eka setiap 30 hari sekali Jika tanggal 2 November 2022 mereka bertiga les bersama maka mereka akan les bersama lagi pada tanggal... Mendapati kenyataan tersebut maka tindakan yang sesuai untuk dilakukan Pak Adi adalah….",
+                options: [
+                    "Memberikan soal untuk dibahas kembali tentang kelipatan bilangan",
+                    "Mengingatkan kembali dan membahas soal tentang materi KPK",
+                    "Mengingatkan kembali dan membahas soal tentang materi perkalian",
+                    "Memperbanyak memberikan soal tentang faktor dari dua atau lebih bilangan",
+                    "Mengingatkan kembali dan membahas soal tentang materi FPB"
+                ],
+                answer: "Mengingatkan kembali dan membahas soal tentang materi KPK"
+            },
+            {
+                question: "10. Bu Siti guru kelas 3 SD akan merancang pembelajaran dengan kompetensi dasar memeragakan pesan dalam dongeng sebagai bentuk ungkapan diri menggunakan kosakata baku dan kalimat efektif. Muatan materi yang terkandung dalam kompetensi dasar tersebut adalah…",
+                options: [
+                    "Kosakata baku, Kalimat Efektif, Ungkapan diri",
+                    "Teks dongeng, kosakata baku, Kalimat efektif",
+                    "Ungkapan diri, pesan dalam dongeng, memeragakan dongeng",
+                    "Ungkapan diri, dongeng, pesan dalam dongeng",
+                    "Pesan dalam dongeng, memeragakan teks dongeng"
+                ],
+                answer: "Kosakata baku, Kalimat Efektif, Ungkapan diri"
+            },
+            {
+                question: "11. Seorang guru SD akan merancang pembelajaran dengan kompetensi dasar yang ingin dicapai adalah melisankan puisi hasil karya pribadi dengan lafal intonasi dan ekspresi yang tepat sebagai bentuk ungkapan diri Ada beberapa sumber belajar yang dapat dimanfaatkan guru dalam pembelajaran yaitu buku paket, modul, LKS lembar kerja siswa, realia, model, market, Bank, museum, kebun binatang dan pasar. sumber belajar yang paling cocok digunakan guru dalam pembelajaran menulis puisi adalah…",
+                options: [
+                    "Lingkungan",
+                    "Buku",
+                    "Modul",
+                    "Lkpd",
+                    "Video"
+                ],
+                answer: "Video"
+            },
+            {
+                question: "12. Terdapat KD atau tujuan pembelajaran di kelas 6 yaitu menyajikan karya tentang berbagai cara melakukan Penghematan energi dan usulan sumber alternatif energi listrik. berdasarkan tersebut kegiatan yang tepat dilakukan supaya peserta didik dapat mencapai kompetensi tersebut adalah….",
+                options: [
+                    "Melaporkan hasil percobaan isolator listrik",
+                    "Membuat video yang menjelaskan perbedaan rangkaian listrik",
+                    "Melakukan pameran replika alat-alat listrik",
+                    "Membuat karya berupa rangkaian listrik",
+                    "Membuat poster ajakan hemat listrik"
+                ],
+                answer: "Membuat karya berupa rangkaian listrik"
+            },
+            {
+                question: "13. Dalam rangka kegiatan pembelajaran guru perlu memotivasi siswa untuk mengawali kegiatan pembelajaran di kelas salah satu indikator pencapaian kompetensi dasar di kelas 2 adalah menerima keberagaman karakteristik individu sebagai anugerah Tuhan Yang Maha Esa di sekolah. Aktivitas yang dapat dilakukan untuk membangkitkan motivasi siswa dapat berupa…..",
+                options: [
+                    "Guru meminta siswa menyebutkan karakteristik masing-masing sehingga teman-teman dapat saling memahami",
+                    "Guru menyampaikan manfaat mempelajari keberagaman di sekolah",
+                    "Guru meminta siswa untuk mewarnai aneka gambar terkait keberagaman di sekolah",
+                    "Menampilkan video berisi keberagaman yang ada di sekolah dan meminta siswa untuk menyebutkan beberapa keberagaman yang ada di video",
+                    "Guru bertanya tentang apa saja keberagaman yang ada di sekolah"
+                ],
+                answer: "Menampilkan video berisi keberagaman yang ada di sekolah dan meminta siswa untuk menyebutkan beberapa keberagaman yang ada di video"
+            },
+            {
+                question: "14. Salah satu indikator ketercapaian pembelajaran kelas V adalah menemukan jaring-jaring kubus dan balok maka evaluasi proses pembelajaran yang kurang sesuai untuk mengukur indikator tersebut adalah...",
+                options: [
+                    "Memberikan soal menentukan luas permukaan kubus dengan menggunakan jaring-jaring yang ditentukan",
+                    "Tanya jawab singkat tentang jaring-jaring dan bukan jaring-jaring kubus dan balok",
+                    "Pertanyaan lisan tentang makna dari jaring-jaring bangun ruang Di akhir pembelajaran",
+                    "Memberikan kuis menggambar paling sedikit dua jaring-jaring kubus dan balok Di akhir pembelajaran",
+                    "Observasi berapa macam jaring-jaring yang dapat ditemukan siswa ketika kegiatan diskusi kelompok"
+                ],
+                answer: "Memberikan soal menentukan luas permukaan kubus dengan menggunakan jaring-jaring yang ditentukan"
+            },
+            {
+                question: "15. Pak Irfan guru kelas 3 SD mengalami masalah dalam mengajarkan keterampilan menulis teks deskripsi. Pernyataan di bawah ini yang menggambarkan permasalahan siswa dalam menulis teks deskripsi adalah...",
+                options: [
+                    "Kosakata yang digunakan dalam menulis deskripsi terbatas",
+                    "Kalimat yang digunakan terbatas dan tidak Efektif menggambarkan objek",
+                    "Paragraf yang dihasilkan tidak memenuhi sebagai paragraf yang baik",
+                    "Banyaknya ditemukan kesalahan penggunaan tanda baca dan ejaan",
+                    "Kalimat yang digunakan siswa tidak gramatikal dan Tidak Efektif"
+                ],
+                answer: "Kalimat yang digunakan terbatas dan tidak Efektif menggambarkan objek"
+            },
+            {
+                question: "16. Terdapat KD/Tujuan Pembelajaran di kelas IV yaitu melakukan kegiatan upaya pelestarian sumber daya alam bersama orang-orang di sekitar rumahnya. Berdasarkan KD tersebut kegiatan yang tepat dilakukan supaya peserta didik dapat mencapai kompetensi tersebut adalah ....",
+                options: [
+                    "Meminta orang tua untuk melakukan kerja bakti untuk menjaga lingkungan di sekitar",
+                    "Membuat daftar cara melestarikan sumber daya alam di lingkungan",
+                    "Membuat karangan tentang cara melestarikan sumber daya alam dilingkungan",
+                    "Membuat poster ajakan untuk melestarikan sumber daya alam di lingkungan",
+                    "Menceritakan upaya pelestarian sumber daya alam di lingkungan"
+                ],
+                answer: "Meminta orang tua untuk melakukan kerja bakti untuk menjaga lingkungan di sekitar"
+            },
+            {
+                question: "17. Pada saat seleksi penerimaan peserta didik baru, Seorang guru diminta kepala sekolah menilai perihal kesetiaan, kepedulian dan penghargaan yang tinggi calon peserta didik terhadap lingkungan tempat tinggalnya. Oleh karena itu salah satu butir yang hendak ia tanyakan adalah....",
+                options: [
+                    "Masyarakat kampung ini sebagian besar bekerja apa?",
+                    "Berapa lama Anda tinggal di kampung ini?",
+                    "Apa saja tradisi bersama di kampung ini?",
+                    "Berapa kali Anda kerja bakti kampung selama ini?",
+                    "Bagaimana budaya kerjasama di kampung ini?"
+                ],
+                answer: "Berapa kali Anda kerja bakti kampung selama ini?"
+            },
+            {
+                question: "18. Kelipatan suatu bilangan adalah bilangan-bilangan yang merupakan hasil kali bilangan tersebut dengan bilangan asli. Pertanyaan berikut yang dapat mengukur kemampuan berpikir tinggi untuk materi kelipatan adalah….",
+                options: [
+                    "Apakah 42 adalah kelipatan 7?",
+                    "Tentukan bilangan yang merupakan kelipatan 7?",
+                    "Nomor rumah Adi, Budi dan Citra adalah 3, 9 dan 15. Apakah nomor rumah Budi dan Citra adalah kelipatan dari nomor rumah Adi?",
+                    "Ayu mempunyai nomor undian 16 dan Yudi mempunyai nomor undian 4, apakah 16 kelipatan 4?",
+                    "Jelaskan apakah kelipatan bilangan genap selalu genap?"
+                ],
+                answer: "Jelaskan apakah kelipatan bilangan genap selalu genap?"
+            },
+            {
+                question: "19. Seorang guru kelas IV semester gasal muatan PPKn 4.4.1, menuliskan indikator. Menyajikan bentuk keragaman budaya di daerah masing-masing. Media pembelajaran yang dapat dipilih guru adalah….",
+                options: [
+                    "Video berbagai rumah, tarian, alat musik, rumah adat, pakaian adat, dan senjata tradisional",
+                    "Narasumber dari lingkungan sekitar yang menguasai budaya daerah setempat",
+                    "Mind Mapping untuk menampilkan hasil kerja siswa",
+                    "Mendatangi rumah adat yang di dalamnya ada alat musik, pakaian adat dan senjata tradisional",
+                    "Memainkan media angklung sesuai irama"
+                ],
+                answer: "Mind Mapping untuk menampilkan hasil kerja siswa"
+            },
+            {
+                question: "20. Seorang guru akan melakukan penilaian kemampuan siswa dalam menyajikan hasil pengamatan secara tertulis. Urutan aspek-aspek yang perlu dinilai oleh guru tersebut adalah sebagai berikut ....",
+                options: [
+                    "Struktur kalimat, ekspresi, keberanian, isi laporan",
+                    "Ketepatan tema, ketepatan struktur, pembawaan",
+                    "Penampilan, sistematika tulisan, penggunaan bahasa",
+                    "Ketepatan struktur, penggunaan bahasa, sistematika tulisan",
+                    "Penggunaan bahasa, ketepatan struktur, kemampuan menanggap"
+                ],
+                answer: "Ketepatan struktur, penggunaan bahasa, sistematika tulisan"
+            },
+            {
+                question: "21. Pada saat pembelajaran matematika, guru memberikan soal-soal yang bersifat terbuka kepada peserta didik. Tujuan guru memberikan soal-soal tersebut adalah untuk...",
+                options: [
+                    "Menguji kemampuan peserta didik dalam menyelesaikan masalah.",
+                    "Melatih kemampuan peserta didik dalam berpikir kritis.",
+                    "Mengembangkan keterampilan peserta didik dalam memecahkan masalah.",
+                    "Melatih kemampuan peserta didik dalam berpikir kreatif.",
+                    "Mengembangkan keterampilan peserta didik dalam menganalisis data."
+                ],
+                answer: "Mengembangkan keterampilan peserta didik dalam memecahkan masalah."
+            },
+            {
+                question: "22. Pada saat pembelajaran IPA, guru memberikan gambar kepada peserta didik untuk diamati. Tujuan guru memberikan gambar tersebut adalah untuk...",
+                options: [
+                    "Melatih kemampuan peserta didik dalam mengamati.",
+                    "Mengembangkan keterampilan peserta didik dalam menganalisis data.",
+                    "Mengembangkan keterampilan peserta didik dalam berpikir kritis.",
+                    "Melatih kemampuan peserta didik dalam berpikir kreatif.",
+                    "Mengembangkan keterampilan peserta didik dalam menyusun laporan."
+                ],
+                answer: "Melatih kemampuan peserta didik dalam mengamati."
+            },
+            {
+                question: "23. Pada saat pembelajaran bahasa Indonesia, guru memberikan tugas kepada peserta didik untuk membuat karangan. Tujuan guru memberikan tugas tersebut adalah untuk...",
+                options: [
+                    "Mengembangkan keterampilan peserta didik dalam menulis.",
+                    "Mengembangkan kemampuan peserta didik dalam berpikir kritis.",
+                    "Mengembangkan kemampuan peserta didik dalam berpikir kreatif.",
+                    "Melatih kemampuan peserta didik dalam menganalisis data.",
+                    "Mengembangkan keterampilan peserta didik dalam mengemukakan pendapat."
+                ],
+                answer: "Mengembangkan keterampilan peserta didik dalam menulis."
+            },
+            {
+                question: "24. Pada saat pembelajaran IPS, guru menggunakan metode diskusi untuk membahas suatu topik. Tujuan guru menggunakan metode diskusi tersebut adalah untuk...",
+                options: [
+                    "Mengembangkan keterampilan peserta didik dalam berkomunikasi.",
+                    "Mengembangkan kemampuan peserta didik dalam berpikir kritis.",
+                    "Mengembangkan kemampuan peserta didik dalam berpikir kreatif.",
+                    "Melatih kemampuan peserta didik dalam menganalisis data.",
+                    "Mengembangkan keterampilan peserta didik dalam memecahkan masalah."
+                ],
+                answer: "Mengembangkan kemampuan peserta didik dalam berpikir kritis."
+            },
+            {
+                question: "25. Pada saat pembelajaran matematika, guru memberikan soal-soal yang bersifat kontekstual kepada peserta didik. Tujuan guru memberikan soal-soal tersebut adalah untuk...",
+                options: [
+                    "Menguji kemampuan peserta didik dalam menyelesaikan masalah.",
+                    "Melatih kemampuan peserta didik dalam berpikir kritis.",
+                    "Mengembangkan keterampilan peserta didik dalam memecahkan masalah.",
+                    "Melatih kemampuan peserta didik dalam berpikir kreatif.",
+                    "Mengembangkan keterampilan peserta didik dalam menganalisis data."
+                ],
+                answer: "Menguji kemampuan peserta didik dalam menyelesaikan masalah."
+            },
+            {
+                question: "26. Dalam rangkaian kegiatan pembelajaran, guru perlu memotivasi siswa untuk mengawali kegiatan pembelajaran di kelas. Salah satu indikator pencapaian Kompetensi Dasar di kelas II adalah 'Menerima keberagaman karakteristik individu sebagai anugerah Tuhan Yang Maha Esa di sekolah', Aktivitas yang dapat dilakukan untuk membangkitkan motivasi siswa dapat berupa....",
+                options: [
+                    "Guru meminta siswa untuk mewarnai aneka gambar terkait keberagaman di sekolah",
+                    "Guru menampilkan video berisi keberagaman yang ada di sekolah dan meminta siswa untuk menyebutkan beberapa keberagaman yang ada di video",
+                    "Guru meminta siswa untuk menyebutkan karakteristik masing-masing sehingga teman-teman dapat saling memahami",
+                    "Guru bertanya tentang apa saja keberagaman yang ada di sekolah",
+                    "Guru menyampaikan manfaat mempelajari keberagaman di sekolah"
+                ],
+                answer: "Guru menampilkan video berisi keberagaman yang ada di sekolah dan meminta siswa untuk menyebutkan beberapa keberagaman yang ada di video"
+            },
+            {
+                question: "27. Kegiatan-kegiatan berikut yang dapat dilakukan pada kegiatan inti pembelajaran di kelas 1 untuk indikator memerlukan kosakata tentang anggota tubuh serta perawatannya melalui teks pendek adalah...",
+                options: [
+                    "Siswa mengamati video tentang gangguan yang dapat terjadi pada bagian-bagian tubuh dan menuliskan kosakata yang ditemukan",
+                    "Siswa membaca dan menemukan kosakata tentang cara merawat anggota tubuh dengan benar",
+                    "Siswa bernyanyi tentang anggota tubuh yang sudah disiapkan dalam bacaan",
+                    "Siswa mengamati bacaan dan menggambar anggota-anggota tubuh",
+                    "Siswa berdiskusi tentang merawat anggota tubuh yang sakit setelah melihat video"
+                ],
+                answer: "Siswa membaca dan menemukan kosakata tentang cara merawat anggota tubuh dengan benar"
+            },
+            {
+                question: "28. Pak Hamsa usianya 40 tahun, secara fisik bugar. Beliau memiliki kepribadian yang hangat dan selalu berupaya membantu kesulitan orang lain. Beliau lulusan S1 PGSD telah memiliki sertifikat pendidik dan sekarang telah mengajar di kelas 5 SD. Beliau dikenal sangat menguasai materi pelajaran, sering menjadi tumpuan pertanyaan tentang materi dari guru lain. Dalam melakukan pembelajaran beliau selalu menyampaikan materi secara detail ke siswa, sampai siswa tidak ada yang bertanya karena sudah tidak ada yang bertanya karena tidak ada yang ditanyakan lagi. Keadaan Pak Hamsa ini jika dikaitkan dengan kelayakan sebagai guru profesional adalah...",
+                options: [
+                    "Kompetensi profesional masih kurang",
+                    "Kompetensi sosial masih kurang",
+                    "Kualifikasi akademik masih kurang",
+                    "Kompetensi pedagogic mash kurang",
+                    "Telah layak sebagai guru profesional"
+                ],
+                answer: "Kompetensi profesional masih kurang"
+            },
+            {
+                question: "29. Jika ingin mengajar di kelas III dengan Kompetensi Dasar 'Memahami pecahan sebagai bagian dari keseluruhan', maka benda konkret yang dapat kita gunakan dalam pembelajaran adalah…",
+                options: [
+                    "Kelereng sejenis",
+                    "Bola pingpong warna putih",
+                    "Papan berpaku",
+                    "Manik-manik warna warni",
+                    "Kertas lipat origami"
+                ],
+                answer: "Kertas lipat origami"
+            },
+            {
+                question: "30. Ibu Rahma seorang guru kelas IV SD melaksanakan pembelajaran dengan mengajarkan indikator membandingkan siklus hidup beberapa jenis makhluk hidup'. Supaya dapat mengukur kemampuan HOTs pada peserta didiknya, maka rumusan indikator soal yang sangat tepat untuk dikembangkan menjadi soal adalah....",
+                options: [
+                    "Membandingkan siklus hidup dua hewan yang sering dijumpai di sekitar tempat tinggalnya",
+                    "Menjelaskan metamorphosis sempurna dan metamorphosis tidak sempurna",
+                    "Menyimpulkan peristiwa yang akan terjadi akibat kegiatan manusia yang mempengaruhi siklus hidup hewan",
+                    "Mengurutkan tahapan siklus pertumbuhan hewan yang dijumpai di sekitar tempat tinggalnya",
+                    "Menentukan tahapan awal siklus hidup hewan tertentu yang dijumpai di sekitar tempat tinggalnya"
+                ],
+                answer: "Menyimpulkan peristiwa yang akan terjadi akibat kegiatan manusia yang mempengaruhi siklus hidup hewan"
+            },
+            {
+                question: "31. Pak Amir guru kelas IV akan merancang pembelajaran dengan Kompetensi Dasar 'Melisankan puisi hasil karya pribadi dengan lafal, intonasi, dan ekspresi yang sempurna sebagai bentuk ungkapan diri. Berdasarkan rumusan KD tersebut salah satu teknik penilaian yang dapat digunakan Pak Amir adalah...",
+                options: [
+                    "Performance",
+                    "Tes",
+                    "Portofolio",
+                    "Nentes",
+                    "Angkel"
+                ],
+                answer: "Performance"
+            },
+            {
+                question: "32. Hasil pengamatan kegiatan pembelajaran di suatu kelas menunjukkan bahwa sebagian besar siswa masih merasa kesulitan menentukan mana yang nilainya lebih besar antara 0,75 dengan…. Sumber kesulitan berikut yang kurang sesuai dengan permasalahan tersebut adalah...",
+                options: [
+                    "Siswa miskonsepsi bahwa pecahan yang mempunyai penyebut lebih besar maka nilainya lebih besar",
+                    "Siswa kurang menguasai konsep perbandingan pecahan",
+                    "Siswa belum menguasai operasi pecahan dan decimal",
+                    "Siswa kesulitan mengubah bilangan desimal ke pecahan",
+                    "Siswa kurang menguasai bilangan senilai (desimal dan pecahan)"
+                ],
+                answer: "Siswa belum menguasai operasi pecahan dan decimal"
+            },
+            {
+                question: "33. Bu Yasmin menemukan bahwa hasil ulangan siswa masih kurang memuaskan khusus nya untuk soal no 4 yaitu: 'Bu Tari mempunyai stok 24 botol sirup, 40 kaleng biskuit dan 72 bungkus coklat. Jika ia ingin membuat parsel dengan isi sama maka berapa kemungkinan parcel terbanyak yang dapat dibuat dari total yang dimiliki Bu Tari?' Tindakan lanjut yang dapat dilakukan Bu Yasmin adalah...",
+                options: [
+                    "Mengingatkan kembali dan membahas soal tentang materi KPK",
+                    "Mengingatkan kembali dan membahas soal tentang materi FPB",
+                    "Mengingatkan kembali tentang cara menentukan faktor persekutuan bilangan",
+                    "Mengingatkan kembali dan membahas soal tentang materi pembagian",
+                    "Memberikan soal untuk dibahas kembali tentang kelipatan bilangan"
+                ],
+                answer: "Mengingatkan kembali dan membahas soal tentang materi FPB"
+            },
+            {
+                question: "34. Bu Faira seorang guru SD kelas V bermaksud mengembangkan kemampuan berpikir kreatif. Kompetensi dasar yang dicapai adalah berkaitan dengan penguasaan kosa kata siswa. Pernyataan manakah di bawah ini yang dapat mengembangkan kemampuan berpikir kreatif siswa...",
+                options: [
+                    "Setiap siswa diminta membaca teks tentang lingkungan. Kemudian guru menuliskan kosa kata tentang lingkungan yang ada dalam teks. Kemudian siswa diminta mencari arti kosa kata yang dituliskan guru di papan tulis",
+                    "Setiap siswa membaca teks tentang lingkungan kemudian siswa menuliskan kesimpulan dari teks yang dibaca",
+                    "Siswa menyimak teks bertemakan lingkungan yang dibacakan guru dan kemudian siswa secara berkelompok diminta menyebutkan kosa kata yang berkaitan dengan lingkungan",
+                    "Setiap siswa diminta membawa kantong misteri berisi satu benda yang berkaitan dengan lingkungan, kemudian kantong misteri ditukar dengan temannya. Tugas siswa adalah memberikan kata sebanyak mungkin terkait benda yang ada di kantong misteri tersebut",
+                    "Siswa membaca dalam hati teks bertemakan lingkungan lalu siswa secara individu diminta mengidentifikasi kosa kata yang berkaitan dengan lingkungan dari teks bacaan yang dibaca"
+                ],
+                answer: "Setiap siswa diminta membawa kantong misteri berisi satu benda yang berkaitan dengan lingkungan, kemudian kantong misteri ditukar dengan temannya. Tugas siswa adalah memberikan kata sebanyak mungkin terkait benda yang ada di kantong misteri tersebut"
+            },
+            {
+                question: "35. Pak Rahman melakukan refleksi terkait pembelajaran IPA, berdasarkan hasil refleksi teridentifikasi masalah terkait kesulitan peserta didik dalam menyampaikan laporan hasil pengamatan dan penelusuran informasi tentang berbagai perubahan bentuk energy. Supaya dapat memperbaiki masalah tersebut rencana tindakan yang perlu dilakukan oleh Pak Rahman adalah...",
+                options: [
+                    "Menerapkan kegiatan eksperimen",
+                    "Menggunakan media audiovisual",
+                    "Menerapkan kegiatan kerja kelompok",
+                    "Menerapkan kegiatan diskusi",
+                    "Menggunakan alat peraga perubahan bentuk energy"
+                ],
+                answer: "Menerapkan kegiatan eksperimen"
+            },
+            {
+                question: "36. Pada saat aktivitas pembelajaran IPA materi organ pencernaan Bu April mengarahkan peserta didik untuk menyiapkan alat dan bahan untuk membuat bagan organ pencernaan manusia. Kemudian Peserta didik menyiapkan alat dan bahan sesuai arahan dari guru. Kegiatan yang dilakukan oleh Bu April dan peserta didiknya merupakan tahapan penerapan model pembelajaran project based learning pada tahapan ke-?",
+                options: [
+                    "Satu",
+                    "Dua",
+                    "Tiga",
+                    "Empat",
+                    "Lima"
+                ],
+                answer: "Dua"
+            },
+            {
+                question: "37. Ibu Hesty mengajar materi penerapan nilai-nilai pancasila sila ke-2 dalam kehidupan sehari-hari bagi peserta didiknya. Maka Bu Hesty kemudian memberikan contoh kepada peserta didiknya, contoh di bawah ini yang merupakan penerapan sila ke-2 yang disampaikan oleh Bu Hesty yaitu….. (Jawaban lebih dari satu)",
+                options: [
+                    "Menghargai hasil karya teman",
+                    "Bergaul dengan teman tanpa membeda-bedakan baik secara agama maupun ras.",
+                    "Membantu teman yang sedang mengalami kesulitan belajar",
+                    "Tidak mencontek maupun memberikan contekan saat ujian sekolah",
+                    "Mengucap salam ketika bertemu dengan teman maupun guru"
+                ],
+                answer: [
+                    "Bergaul dengan teman tanpa membeda-bedakan baik secara agama maupun ras.",
+                    "Membantu teman yang sedang mengalami kesulitan belajar",
+                    "Tidak mencontek maupun memberikan contekan saat ujian sekolah"
+                ] // This is an array for multi-correct answers
+            },
+            {
+                question: "38. Pada aktivitas pembelajaran IPA materi siklus air Bu Nanda ingin menilai keterampilan dari peserta didik yang ia ajar. Maka tujuan pembelajaran yang tepat dalam pembelajaran tersebut ialah….",
+                options: [
+                    "Setelah menyimak video pembelajaran melalui media power point, peserta didik mampu mengidentifikasi 5 urutan siklus air secara tepat.",
+                    "Setelah melakukan demonstrasi dengan alat peraga Diorama Siklus Air, peserta didik mampu memahami definisi 5 urutan siklus air secara benar.",
+                    "Setelah menyimak video melalui media pembelajaran power point, peserta didik mampu menganalisis 5 tindakan manusia yang berdampak positif dan negatif terhadap keberlangsungan siklus air di bumi secara tepat.",
+                    "Setelah melakukan diskusi kelompok, peserta didik mampu menggambar 5 urutan siklus air secara urut.",
+                    "Setelah menyimak video pembelajaran tentang siklus air peserta didik dapat menyebutkan terjadinya siklus air secara berurutan dengan benar."
+                ],
+                answer: "Setelah melakukan diskusi kelompok, peserta didik mampu menggambar 5 urutan siklus air secara urut."
+            },
+            {
+                question: "39. Perhatikan urutan kemerdekaan Indonesia: 1) Soekarno dan Mohammad Hatta dibawa ke rengasdengklok oleh pemuda pemuda, 2) Jepang menyerah kepada sekutu, 3) Pengeboman hiroshima dan nagasaki, 4) Proklamasi kemerdekaan indonesia. Pak Aris ingin mengajarkan urutan peristiwa kemerdekaan Indonesia kepada peserta didiknya. Maka Pak Aris mengajarkan urutan kemerdekaan yang benar dan sesuai adalah….",
+                options: [
+                    "2-1-3-4",
+                    "2-3-1-4",
+                    "3-2-1-4",
+                    "3-1-2-4",
+                    "1-3-2-4"
+                ],
+                answer: "3-2-1-4"
+            },
+            {
+                question: "40. Pak Hamzah ingin mengajarkan materi diagram batang dan piktogram pada mata pelajaran matematika. Adapun capaian pembelajarannya yaitu peserta didik dapat mengurutkan, membandingkan, menyajikan, menganalisis dan menginterpretasi data dalam bentuk tabel, diagram gambar, piktogram, dan diagram batang (skala satu satuan). Maka tujuan pembelajaran yang bisa dibuat dan dicapai agar mencakup 3 ranah yaitu kognitif, afektif dan psikomotorik yaitu…. (Jawaban lebih dari satu)",
+                options: [
+                    "Melalui menyimak video slide interaktif dan kuis peserta didik dapat menafsirkan data diagram batang dan piktogram dengan benar.",
+                    "Melalui kuis kemudian berdiskusi dalam kelompok serta mengerjakan evaluasi secara mandiri peserta didik dapat membuat diagram batang dengan benar.",
+                    "Melalui berdiskusi dalam kelompok peserta didik dapat aktif berkolaborasi dalam membuat diagram batang.",
+                    "Melalui mengerjakan lembar refleksi diri secara mandiri peserta didik dapat menyatakan kelebihan dan kekurangan dirinya selama proses pembelajaran dengan baik.",
+                    "Melalui kegiatan wawancara dengan teman tentang makanan kesukaan peserta didik dapat membuat tabel dari data-data yang telah dikumpulkan."
+                ],
+                answer: [
+                    "Melalui menyimak video slide interaktif dan kuis peserta didik dapat menafsirkan data diagram batang dan piktogram dengan benar.",
+                    "Melalui kuis kemudian berdiskusi dalam kelompok serta mengerjakan evaluasi secara mandiri peserta didik dapat membuat diagram batang dengan benar.",
+                    "Melalui mengerjakan lembar refleksi diri secara mandiri peserta didik dapat menyatakan kelebihan dan kekurangan dirinya selama proses pembelajaran dengan baik.",
+                    "Melalui kegiatan wawancara dengan teman tentang makanan kesukaan peserta didik dapat membuat tabel dari data-data yang telah dikumpulkan."
+                ] // This is an array for multi-correct answers
+            }
+        ];
+
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let userAnswers = []; // To store user's answer and correct answer for review
+
+        const quizContainer = document.getElementById('quiz-container');
+        const questionArea = document.getElementById('question-area');
+        const questionNumberElement = questionArea.querySelector('.question-number');
+        const questionTextElement = questionArea.querySelector('.question-text');
+        const optionsContainer = document.getElementById('options-container');
+        const submitAnswerBtn = document.getElementById('submit-answer');
+        const nextQuestionBtn = document.getElementById('next-question');
+        const restartQuizBtn = document.getElementById('restart-quiz');
+        const resultContainer = document.getElementById('result-container');
+        const scoreElement = document.getElementById('score');
+        const totalQuestionsElement = document.getElementById('total-questions');
+        const reviewAnswersBtn = document.getElementById('review-answers');
+        const restartQuizResultsBtn = document.getElementById('restart-quiz-results');
+        const answerReviewContainer = document.getElementById('answer-review-container');
+        const reviewList = document.getElementById('review-list');
+        const backToResultsBtn = document.getElementById('back-to-results');
+
+        function loadQuestion() {
+            if (currentQuestionIndex < questions.length) {
+                const q = questions[currentQuestionIndex];
+                questionNumberElement.textContent = `Soal ${currentQuestionIndex + 1} dari ${questions.length}`;
+                questionTextElement.textContent = q.question;
+                optionsContainer.innerHTML = ''; // Clear previous options
+
+                q.options.forEach(option => {
+                    const button = document.createElement('button');
+                    button.classList.add('btn', 'btn-outline-primary', 'option-button');
+                    button.textContent = option;
+                    button.addEventListener('click', () => selectOption(button));
+                    optionsContainer.appendChild(button);
+                });
+
+                submitAnswerBtn.classList.remove('d-none');
+                nextQuestionBtn.classList.add('d-none');
+                restartQuizBtn.classList.add('d-none'); // Hide restart button during quiz
+                clearOptionSelection(); // Clear any previous selections
+                document.querySelectorAll('.option-button').forEach(btn => btn.disabled = false); // Re-enable options
+            } else {
+                showResults();
+            }
+        }
+
+        function selectOption(selectedButton) {
+            clearOptionSelection();
+            selectedButton.classList.add('selected');
+        }
+
+        function clearOptionSelection() {
+            document.querySelectorAll('.option-button').forEach(btn => {
+                btn.classList.remove('selected', 'correct', 'incorrect');
+            });
+        }
+
+        function checkAnswer() {
+            const selectedOption = document.querySelector('.option-button.selected');
+            if (!selectedOption) {
+                alert('Mohon pilih jawaban terlebih dahulu!');
+                return;
+            }
+
+            const userAnswer = selectedOption.textContent;
+            const currentQuestion = questions[currentQuestionIndex];
+            const correctAnswers = Array.isArray(currentQuestion.answer) ? currentQuestion.answer : [currentQuestion.answer]; // Handle single or multiple answers
+
+            const isCorrect = correctAnswers.includes(userAnswer);
+
+            userAnswers.push({
+                question: currentQuestion.question,
+                yourAnswer: userAnswer,
+                correctAnswers: correctAnswers, // Store all correct answers for review
+                isCorrect: isCorrect
+            });
+
+            if (isCorrect) {
+                score++;
+                selectedOption.classList.add('correct');
+            } else {
+                selectedOption.classList.add('incorrect');
+                // Highlight the correct answer(s) as well
+                document.querySelectorAll('.option-button').forEach(btn => {
+                    if (correctAnswers.includes(btn.textContent)) {
+                        btn.classList.add('correct');
+                    }
+                });
+            }
+
+            // Disable all options after answering
+            document.querySelectorAll('.option-button').forEach(btn => btn.disabled = true);
+
+            submitAnswerBtn.classList.add('d-none');
+            nextQuestionBtn.classList.remove('d-none');
+            
+            if (currentQuestionIndex === questions.length - 1) {
+                nextQuestionBtn.textContent = 'Lihat Hasil';
+            } else {
+                nextQuestionBtn.textContent = 'Soal Selanjutnya';
+            }
+        }
+
+        function showResults() {
+            quizContainer.classList.add('d-none');
+            resultContainer.classList.remove('d-none');
+            scoreElement.textContent = score;
+            totalQuestionsElement.textContent = questions.length;
+        }
+
+        function nextQuestion() {
+            currentQuestionIndex++;
+            if (currentQuestionIndex < questions.length) {
+                loadQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        function restartQuiz() {
+            currentQuestionIndex = 0;
+            score = 0;
+            userAnswers = [];
+            quizContainer.classList.remove('d-none');
+            resultContainer.classList.add('d-none');
+            answerReviewContainer.classList.add('d-none'); // Hide review if visible
+            loadQuestion();
+        }
+
+        function reviewAnswers() {
+            resultContainer.classList.add('d-none');
+            answerReviewContainer.classList.remove('d-none');
+            reviewList.innerHTML = ''; // Clear previous review
+
+            userAnswers.forEach((item, index) => {
+                const reviewItem = document.createElement('div');
+                reviewItem.classList.add('review-item');
+                const yourAnswerClass = item.isCorrect ? 'text-success' : 'text-danger';
+                const correctAnswersText = Array.isArray(item.correctAnswers) ? item.correctAnswers.join(' / ') : item.correctAnswers;
+
+                reviewItem.innerHTML = `
+                    <p><strong>Soal ${index + 1}:</strong> ${item.question}</p>
+                    <p>Jawaban Anda: <span class="${yourAnswerClass} your-answer">${item.yourAnswer}</span></p>
+                    <p>Jawaban Benar: <span class="correct-answer">${correctAnswersText}</span></p>
+                `;
+                reviewList.appendChild(reviewItem);
+            });
+        }
+
+        // Event Listeners
+        submitAnswerBtn.addEventListener('click', checkAnswer);
+        nextQuestionBtn.addEventListener('click', nextQuestion);
+        restartQuizBtn.addEventListener('click', restartQuiz); // This button is currently hidden during quiz
+        reviewAnswersBtn.addEventListener('click', reviewAnswers);
+        restartQuizResultsBtn.addEventListener('click', restartQuiz);
+        backToResultsBtn.addEventListener('click', () => {
+            answerReviewContainer.classList.add('d-none');
+            resultContainer.classList.remove('d-none');
+        });
+
+        // Initial load
+        document.addEventListener('DOMContentLoaded', loadQuestion);
+    </script>
+</body>
+</html>
