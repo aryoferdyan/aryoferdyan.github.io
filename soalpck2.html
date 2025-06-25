@@ -1,0 +1,1620 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UTBK/UKPPPG PCK Informatika Quiz</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .quiz-title {
+            color: #007bff;
+            font-weight: 700;
+        }
+
+        .card {
+            border-radius: 0.75rem;
+            border: none;
+        }
+
+        .card-body {
+            padding: 2.5rem;
+        }
+
+        .question-number {
+            font-size: 1.1rem;
+        }
+
+        .question-text {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #343a40;
+        }
+
+        .option-button {
+            width: 100%;
+            text-align: left;
+            margin-bottom: 0.75rem;
+            padding: 1rem 1.5rem;
+            border-radius: 0.5rem;
+            font-size: 1.1rem;
+            transition: all 0.2s ease-in-out;
+        }
+
+        .option-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        /* Styles for correct/incorrect answers */
+        .option-button.correct {
+            background-color: #d4edda; /* Light green */
+            border-color: #28a745;
+            color: #155724;
+            font-weight: bold;
+        }
+
+        .option-button.incorrect {
+            background-color: #f8d7da; /* Light red */
+            border-color: #dc3545;
+            color: #721c24;
+            font-weight: bold;
+        }
+
+        .option-button.selected {
+            border: 2px solid #007bff; /* Highlight selected option */
+        }
+
+        #submit-answer, #next-question, #restart-quiz, #review-answers, #restart-quiz-results, #back-to-results {
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        #result-container h3 {
+            font-weight: 700;
+        }
+
+        #result-container p {
+            color: #343a40;
+        }
+
+        .review-item {
+            background-color: #e9ecef;
+            padding: 1.25rem;
+            margin-bottom: 1rem;
+            border-radius: 0.5rem;
+            border: 1px solid #dee2e6;
+        }
+
+        .review-item p {
+            margin-bottom: 0.5rem;
+        }
+
+        .review-item .your-answer {
+            font-weight: bold;
+        }
+
+        .review-item .correct-answer {
+            color: #28a745;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="text-center mb-4 quiz-title">Kumpulan Soal Pedagogical Content Knowledge UTBK UKPPPG Informatika</h1>
+        <hr>
+
+        <div id="quiz-container" class="card shadow-lg">
+            <div class="card-body">
+                <div id="question-area">
+                    <p class="question-number text-muted mb-2"></p>
+                    <h5 class="card-title question-text">Memuat soal...</h5>
+                    <div id="options-container" class="mt-4">
+                        </div>
+                </div>
+                <div class="d-grid gap-2 mt-4">
+                    <button id="submit-answer" class="btn btn-primary btn-lg">Jawab</button>
+                    <button id="next-question" class="btn btn-success btn-lg d-none">Soal Selanjutnya</button>
+                    <button id="restart-quiz" class="btn btn-info btn-lg d-none">Mulai Ulang Quiz</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="result-container" class="card shadow-lg mt-5 d-none">
+            <div class="card-body text-center">
+                <h3 class="card-title text-success">Quiz Selesai!</h3>
+                <p class="fs-4">Skor Anda: <span id="score">0</span> / <span id="total-questions">0</span></p>
+                <button id="review-answers" class="btn btn-secondary mt-3">Lihat Jawaban</button>
+                <button id="restart-quiz-results" class="btn btn-info mt-3">Mulai Ulang Quiz</button>
+            </div>
+        </div>
+
+        <div id="answer-review-container" class="card shadow-lg mt-5 d-none">
+            <div class="card-body">
+                <h3 class="card-title mb-4">Review Jawaban Anda</h3>
+                <div id="review-list">
+                    </div>
+                <button id="back-to-results" class="btn btn-secondary mt-4">Kembali ke Hasil</button>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVpdpbljqNVdva/r+rpjQYfWAASkQhEUK7pMDN" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <script>
+        const questions = [
+            {
+                question: "1. Anda memiliki seorang siswa kelas 7, Arya, yang sering mengganggu teman saat praktik komputer dengan mematikan layar teman atau mengubah pengaturan tanpa izin. Bagaimana Anda mengelola perilaku Arya agar pembelajaran tetap aman dan nyaman bagi semua?",
+                answerOptions: [
+                    {
+                        text: "Mengeluarkan Arya dari kelas setiap kali dia mengganggu untuk memberikan efek jera.",
+                        rationale: "Mengeluarkan siswa tanpa memahami akar masalah atau memberikan bimbingan tidak efektif dan bisa memperburuk perilaku.",
+                        isCorrect: false
+                    },
+                    {
+                        text: "Menempatkan Arya di bangku terdepan dan memberinya tugas pengawasan terhadap teman-temannya.",
+                        rationale: "Memberi tugas pengawasan tanpa bimbingan bisa jadi tidak tepat dan belum tentu mengubah perilakunya.",
+                        isCorrect: false
+                    },
+                    {
+                        text: "Mengajak Arya berbicara secara personal setelah kelas, menanyakan alasan perilakunya, dan bersama-sama menetapkan ekspektasi perilaku serta konsekuensi jika dilanggar, dengan penekanan pada pentingnya saling menghargai di lingkungan belajar.",
+                        rationale: "Pendekatan ini sesuai dengan pengelolaan perilaku peserta didik yang sulit, berfokus pada analisis karakteristik individu dan menciptakan lingkungan aman.",
+                        isCorrect: true
+                    },
+                    {
+                        text: "Mengabaikan perilakunya karena menganggap itu hanya kenakalan biasa yang akan hilang seiring waktu.",
+                        rationale: "Mengabaikan perilaku mengganggu dapat merusak lingkungan belajar bagi siswa lain dan tidak menyelesaikan masalah siswa tersebut.",
+                        isCorrect: false
+                    }
+                ],
+                hint: "Fokus pada komunikasi personal dan pemahaman akar masalah perilaku siswa, lalu libatkan mereka dalam solusi."
+            },
+            {
+                question: "2. Dalam kelas Informatika, siswa sering ribut saat praktik kelompok sehingga fokus pembelajaran terganggu. Sebagai guru, strategi pengelolaan kelas yang paling efektif untuk menciptakan suasana belajar yang berpusat pada peserta didik adalah...",
+                answerOptions: [
+                    {
+                        text: "Meninggikan suara dan mengancam untuk membatalkan sesi praktik jika tidak tenang.",
+                        rationale: "Pendekatan otoriter cenderung menciptakan ketakutan, bukan lingkungan belajar yang positif dan berpusat pada siswa.",
+                        isCorrect: false
+                    },
+                    {
+                        text: "Menetapkan aturan kelas yang jelas di awal semester terkait etika berkomunikasi dan kolaborasi dalam praktik kelompok, serta secara konsisten menegakkan aturan tersebut dengan penguatan positif untuk kelompok yang tertib.",
+                        rationale: "Menetapkan ekspektasi yang jelas dan konsisten dengan penguatan positif adalah kunci pengelolaan kelas yang efektif dan berpusat pada siswa.",
+                        isCorrect: true
+                    },
+                    {
+                        text: "Memisahkan semua kelompok dan meminta siswa bekerja secara individu untuk mencegah keributan.",
+                        rationale: "Ini menghindarkan kolaborasi dan tidak mengajarkan siswa cara mengelola interaksi dalam kelompok.",
+                        isCorrect: false
+                    },
+                    {
+                        text: "Mengadakan kuis mendadak setiap kali kelas mulai ribut untuk mengalihkan perhatian.",
+                        rationale: "Ini menggunakan kuis sebagai hukuman, bukan alat asesmen yang konstruktif, dan tidak mengatasi akar masalah perilaku.",
+                        isCorrect: false
+                    }
+                ],
+                hint: "Bagaimana Anda menciptakan struktur dan ekspektasi yang mendukung pembelajaran kolaboratif tanpa mengurangi fokus?"
+            },
+            {
+                question: "3. Anda merencanakan pembelajaran tentang 'Pengenalan Jaringan Komputer' untuk siswa kelas 8. Untuk menciptakan rasa aman dan nyaman, terutama bagi siswa yang pemalu atau takut salah dalam menggunakan perangkat, aktivitas apa yang paling tepat?",
+                answerOptions: [
+                    {
+                        text: "Meminta setiap siswa maju ke depan kelas dan menjelaskan sebuah komponen jaringan satu per satu.",
+                        rationale: "Ini bisa meningkatkan kecemasan pada siswa pemalu atau yang kurang percaya diri, justru mengurangi rasa aman.",
+                        isCorrect: false
+                    },
+                    {
+                        text: "Memulai dengan aktivitas 'unplugged' (tanpa komputer) seperti simulasi jaringan menggunakan benang, dan memastikan semua siswa memiliki kesempatan untuk berkontribusi dalam kelompok kecil dengan dukungan dari guru dan teman sebaya.",
+                        rationale: "Aktivitas unplugged mengurangi tekanan teknis dan memungkinkan siswa berinteraksi dalam lingkungan yang tidak mengintimidasi, membangun rasa aman melalui kolaborasi.",
+                        isCorrect: true
+                    },
+                    {
+                        text: "Memberikan modul bacaan yang sangat lengkap tentang jaringan komputer dan meminta mereka belajar mandiri.",
+                        rationale: "Belajar mandiri dari teks bisa jadi terlalu pasif dan tidak mengatasi kekhawatiran siswa yang takut salah dalam praktik.",
+                        isCorrect: false
+                    },
+                    {
+                        text: "Menunjukkan video-video profesional tentang konfigurasi jaringan yang kompleks untuk menginspirasi mereka.",
+                        rationale: "Video kompleks bisa jadi mengintimidasi dan membuat siswa merasa tidak mampu jika tidak ada scaffolding yang memadai.",
+                        isCorrect: false
+                    }
+                ],
+                hint: "Pilih aktivitas yang mengurangi tekanan, memungkinkan eksperimen tanpa risiko, dan mendorong interaksi positif."
+            },
+            {
+                question: "4. Anda akan mengajarkan topik 'Siklus Hidup Pengembangan Perangkat Lunak (SDLC)' kepada siswa SMA. Tujuan pembelajaran Anda adalah agar siswa dapat 'merencanakan tahapan SDLC sederhana untuk sebuah aplikasi'. Desain pembelajaran yang terstruktur dan berurutan harus dimulai dengan...",
+                answerOptions: [
+                    {
+                        text: "Meminta siswa langsung membuat proposal proyek aplikasi lengkap dengan estimasi waktu.",
+                        rationale: "Ini adalah tugas akhir; tanpa pemahaman awal tentang SDLC, siswa akan kesulitan merencanakan.",
+                        isCorrect: false
+                    },
+                    {
+                        text: "Mengidentifikasi kebutuhan pengguna dan masalah yang akan dipecahkan oleh aplikasi (tahap analisis/requirements gathering) melalui diskusi studi kasus.",
+                        rationale: "Memulai dengan identifikasi kebutuhan pengguna adalah langkah pertama yang logis dan krusial dalam setiap pengembangan perangkat lunak, sesuai dengan tahapan awal SDLC.",
+                        isCorrect: true
+                    },
+                    {
+                        text: "Mengenalkan berbagai metodologi pengembangan Agile, Waterfall, dsb.",
+                        rationale: "Ini adalah detail tentang metodologi, bukan tahapan SDLC secara umum, dan bisa terlalu kompleks di awal.",
+                        isCorrect: false
+                    },
+                    {
+                        text: "Memberikan contoh kode dari aplikasi yang sudah jadi.",
+                        rationale: "Melihat produk jadi tanpa memahami proses di baliknya tidak membantu siswa merencanakan SDLC.",
+                        isCorrect: false
+                    }
+                ],
+                hint: "Pikirkan tahapan paling awal dan esensial dalam mengembangkan solusi untuk suatu masalah."
+            },
+            {
+                question: "5. Anda merancang pembelajaran 'Algoritma Pencarian Sederhana' (misal: Linear Search) di mana siswa harus memahami konsep 'Behavior' dalam tujuan pembelajaran. Bagaimana Anda memastikan elemen 'Behavior' terpenuhi dalam tujuan pembelajaran?",
+                answerOptions: [
+                    {
+                        text: "Menulis tujuan: 'Siswa akan mengetahui apa itu Algoritma Pencarian Linear.'",
+                        rationale: "Kata 'mengetahui' bersifat pasif dan tidak spesifik menunjukkan perilaku atau kinerja yang dapat diamati.",
+                        isCorrect: false
+                    },
+                    {
+                        text: "Menulis tujuan: 'Siswa mampu mendemonstrasikan langkah-langkah Algoritma Pencarian Linear menggunakan pseudocode atau flowchart.'",
+                        rationale: "Kata 'mendemonstrasikan' adalah kata kerja operasional yang menunjukkan perilaku terukur dan dapat diamati, sesuai dengan komponen Behavior.",
+                        isCorrect: true
+                    },
+                    {
+                        text: "Menulis tujuan: 'Siswa merasa senang saat belajar Algoritma Pencarian Linear.'",
+                        rationale: "Ini adalah ranah afektif (emosi), bukan Behavior (kinerja yang dapat diamati).",
+                        isCorrect: false
+                    },
+                    {
+                        text: "Menulis tujuan: 'Siswa akan siap belajar Algoritma Pencarian Linear.'",
+                        rationale: "Kata 'siap' tidak menunjukkan perilaku hasil belajar yang spesifik dan terukur.",
+                        isCorrect: false
+                    }
+                ],
+                hint: "Behavior harus berupa kata kerja yang menunjukkan tindakan atau kinerja yang bisa diamati dan diukur."
+            },
+            {
+                question: "6. Anda mengajar di sekolah yang terletak di daerah pedesaan dengan akses internet terbatas. Anda ingin mengajarkan topik 'Pemanfaatan Big Data dalam Kehidupan Sehari-hari'. Bagaimana Anda membuat desain pembelajaran yang relevan dengan kondisi sekitar dan melibatkan peserta didik?",
+                answerOptions: [
+                    {
+                        text: "Meminta siswa untuk mencari kasus penggunaan Big Data di internet menggunakan komputer sekolah, meskipun aksesnya lambat.",
+                        rationale: "Memaksakan penggunaan internet yang terbatas tidak relevan dan bisa menghambat pembelajaran.",
+                        isCorrect: false
+                    },
+                    {
+                        text: "Membawa studi kasus tentang bagaimana data cuaca pertanian lokal atau data hasil panen dapat dianalisis untuk membuat keputusan yang lebih baik, lalu melibatkan siswa dalam mengumpulkan dan menganalisis data sederhana dari lingkungan sekitar mereka.",
+                        rationale: "Pendekatan kontekstual ini memanfaatkan data yang relevan dengan kehidupan siswa, melibatkan mereka dalam pengumpulan dan analisis data secara langsung.",
+                        isCorrect: true
+                    },
+                    {
+                        text: "Memberikan ceramah tentang sejarah Big Data dan perkembangan teknologi data di kota-kota besar.",
+                        rationale: "Meskipun informatif, ini tidak relevan dengan kondisi siswa di pedesaan dan bersifat pasif.",
+                        isCorrect: false
+                    },
+                    {
+                        text: "Menugaskan siswa untuk membuat presentasi tentang perusahaan-perusahaan teknologi yang menggunakan Big Data.",
+                        rationale: "Ini mungkin terlalu jauh dari konteks siswa dan bisa sulit dilakukan tanpa akses internet yang memadai.",
+                        isCorrect: false
+                    }
+                ],
+                hint: "Hubungkan materi dengan realitas lokal siswa dan libatkan mereka dalam aktivitas yang memanfaatkan lingkungan sekitar."
+            },
+            {
+                question: "7. Anda ingin mengajarkan konsep 'Variabel' dan 'Tipe Data' dalam pemrograman kepada siswa yang memiliki beragam gaya belajar (visual, auditori, kinestetik). Pemilihan sumber belajar yang paling sesuai untuk memenuhi keberagaman ini adalah...",
+                answerOptions: [
+                    {
+                        text: "Hanya menggunakan buku teks dengan penjelasan yang lengkap.",
+                        rationale: "Buku teks cenderung fokus pada gaya belajar membaca dan kurang mengakomodasi visual, auditori, atau kinestetik.",
+                        isCorrect: false
+                    },
+                    {
+                        text: "Menyediakan video tutorial (visual-auditori), simulasi interaktif di Scratch/Python (visual-kinestetik), dan kartu-kartu fisik yang bisa dipegang (kinestetik) untuk merepresentasikan variabel dan tipe data yang berbeda.",
+                        rationale: "Pendekatan ini menyediakan berbagai format yang mengakomodasi berbagai gaya belajar secara komprehensif, sesuai dengan tujuan pembelajaran yang berpusat pada peserta didik.",
+                        isCorrect: true
+                    },
+                    {
+                        text: "Mengajak seorang programmer profesional untuk datang dan bercerita tentang pengalamannya.",
+                        rationale: "Meskipun bisa memotivasi, ini lebih pada aspek inspirasi daripada penyampaian materi konsep yang beragam gaya belajar.",
+                        isCorrect: false
+                    },
+                    {
+                        text: "Memberikan ceramah dan presentasi slide yang berisi banyak definisi.",
+                        rationale: "Pendekatan ini bersifat pasif dan hanya dominan pada gaya belajar auditori/visual (teks), kurang melibatkan kinestetik.",
+                        isCorrect: false
+                    }
+                ],
+                hint: "Cari sumber belajar yang memanfaatkan berbagai indera dan metode interaksi untuk menjelaskan satu konsep."
+            },
+            {
+                question: "8. Anda ingin siswa mengembangkan nalar kritis dalam materi 'Berita Hoax dan Fakta di Internet'. Desain pembelajaran yang mencakup strategi dan komunikasi untuk menumbuhkan minat dan nalar kritis peserta didik adalah...",
+                answerOptions: [
+                    {
+                        text: "Memberikan tugas kepada siswa untuk mencari 5 contoh berita hoax terbaru dan 5 contoh berita fakta, lalu meringkasnya.",
+                        rationale: "Aktivitas ini lebih pada identifikasi dan meringkas (LOTS), kurang mendorong nalar kritis dalam memverifikasi.",
+                        isCorrect: false
+                    },
+                    {
+                        text: "Membuat aktivitas 'Detective Hoax' di mana siswa dibagi kelompok, diberikan beberapa berita (beberapa asli, beberapa hoax), dan diminta untuk menggunakan alat verifikasi online (misal: cek fakta, reverse image search) untuk membuktikan kebenaran berita tersebut, kemudian mempresentasikan temuan mereka.",
+                        rationale: "Aktivitas ini langsung melatih keterampilan verifikasi, berpikir kritis, dan kolaborasi dalam konteks yang menarik dan relevan.",
+                        isCorrect: true
+                    },
+                    {
+                        text: "Menceramahkan tentang ciri-ciri berita hoax dan meminta siswa menghafalnya.",
+                        rationale: "Ini adalah pendekatan pasif yang menguji ingatan, bukan nalar kritis.",
+                        isCorrect: false
+                    },
+                    {
+                        text: "Menyuruh siswa bertanya kepada orang tua mereka tentang berita hoax yang pernah mereka dengar.",
+                        rationale: "Ini bisa menjadi sumber data, tetapi tidak secara langsung melatih keterampilan siswa dalam memverifikasi atau menganalisis berita hoax.",
+                        isCorrect: false
+                    }
+                ],
+                hint: "Rancang kegiatan yang secara aktif melibatkan siswa dalam proses 'penyelidikan' dan 'pembuktian' informasi."
+            },
+            {
+                question: "9. Anda mengamati bahwa siswa Anda sangat antusias menggunakan media sosial. Bagaimana Anda dapat menggunakan Teknologi Informasi dan Komunikasi (TIK) secara adaptif dalam pembelajaran untuk menumbuhkan minat belajar mereka pada topik 'Literasi Digital dan Etika Online'?",
+                answerOptions: [
+                    {
+                        text: "Meminta siswa membuat akun media sosial baru khusus untuk tugas sekolah.",
+                        rationale: "Ini mungkin tidak perlu dan bisa menimbulkan masalah privasi atau keamanan tambahan.",
+                        isCorrect: false
+                    },
+                    {
+                        text: "Menggunakan platform media sosial yang akrab bagi siswa (misalnya membuat grup diskusi privat, atau menggunakan fitur polling/kuis) untuk memfasilitasi diskusi tentang skenario kasus etika online atau kampanye 'digital citizenship' singkat.",
+                        rationale: "Memanfaatkan platform yang sudah dikenal siswa akan membuat pembelajaran lebih relevan dan menarik, sambil tetap fokus pada tujuan pembelajaran etika digital.",
+                        isCorrect: true
+                    },
+                    {
+                        text: "Membatasi penggunaan media sosial di sekolah sepenuhnya.",
+                        rationale: "Ini adalah tindakan kontrol, bukan pemanfaatan TIK secara adaptif untuk pembelajaran.",
+                        isCorrect: false
+                    },
+                    {
+                        text: "Menugaskan siswa untuk membuat makalah panjang tentang sejarah media sosial.",
+                        rationale: "Meskipun relevan dengan TIK, format makalah mungkin kurang menarik bagi siswa yang antusias dengan interaksi media sosial.",
+                        isCorrect: false
+                    }
+                ],
+                hint: "Manfaatkan alat yang sudah dikenal dan disukai siswa, lalu arahkan penggunaannya untuk tujuan edukasi."
+            },
+            {
+                question: "10. Anda merancang asesmen untuk mengukur pemahaman siswa tentang 'Konsep Jaringan Komputer' (topologi, IP address, protokol). Manakah bentuk asesmen yang paling berpusat pada peserta didik dan otentik?",
+                answerOptions: [
+                    {
+                        text: "Tes pilihan ganda tentang definisi dan fungsi setiap komponen jaringan.",
+                        rationale: "Ini mengukur pengetahuan deklaratif, bukan pemahaman mendalam atau kemampuan aplikasi.",
+                        isCorrect: false
+                    },
+                    {
+                        text: "Proyek di mana siswa harus merancang denah jaringan untuk sebuah 'kafe internet' baru, menjelaskan pilihan topologi dan pengalamatan IP yang digunakan, serta mengidentifikasi potensi masalah dan solusinya.",
+                        rationale: "Proyek ini mensimulasikan masalah dunia nyata, mengharuskan siswa menerapkan pengetahuan, dan memungkinkan mereka menunjukkan pemahaman holistik.",
+                        isCorrect: true
+                    },
+                    {
+                        text: "Kuis lisan individu di mana guru menanyai setiap siswa tentang konsep jaringan.",
+                        rationale: "Meskipun interaktif, kuis lisan seringkali hanya menguji ingatan cepat dan bisa menimbulkan tekanan bagi sebagian siswa.",
+                        isCorrect: false
+                    },
+                    {
+                        text: "Ujian praktik di mana siswa harus mengkabel ulang jaringan di laboratorium komputer.",
+                        rationale: "Ini menguji keterampilan teknis saja, bukan pemahaman konseptual di balik desain jaringan.",
+                        isCorrect: false
+                    }
+                ],
+                hint: "Asesmen yang berpusat pada peserta didik dan otentik melibatkan siswa dalam tugas-tugas yang bermakna dan relevan dengan dunia nyata."
+            },
+            {
+                question: "11. Anda telah selesai mengajarkan materi 'Dasar-dasar Pemrograman dengan Scratch'. Untuk melaksanakan asesmen yang berpusat pada peserta didik, Anda sebaiknya...",
+                answerOptions: [
+                    {
+                        text: "Memberikan tes tertulis tentang blok-blok kode dan fungsi-fungsinya.",
+                        rationale: "Tes tertulis mungkin tidak sepenuhnya merefleksikan kemampuan siswa dalam berpikir komputasional atau membuat program.",
+                        isCorrect: false
+                    },
+                    {
+                        text: "Meminta siswa membuat proyek interaktif bebas sesuai kreativitas mereka dengan kriteria penilaian yang jelas (misal: penggunaan loop, kondisi, interaksi pengguna), dan memfasilitasi sesi presentasi peer-review.",
+                        rationale: "Pendekatan berbasis proyek dan peer-review memungkinkan siswa menunjukkan kreativitas, menerapkan konsep, dan mendapatkan umpan balik dari teman, yang sangat berpusat pada siswa.",
+                        isCorrect: true
+                    },
+                    {
+                        text: "Melakukan ujian praktik secara individu dengan soal yang sama untuk semua siswa.",
+                        rationale: "Meskipun menguji praktik, soal yang sama untuk semua mungkin tidak mengakomodasi gaya belajar atau kecepatan siswa yang berbeda.",
+                        isCorrect: false
+                    },
+                    {
+                        text: "Meminta siswa menghafalkan urutan langkah membuat game sederhana.",
+                        rationale: "Menghafal urutan langkah tidak menunjukkan pemahaman mendalam atau kemampuan berkreasi.",
+                        isCorrect: false
+                    }
+                ],
+                hint: "Asesmen berpusat pada siswa harus memberikan kesempatan bagi siswa untuk mengekspresikan pemahaman mereka secara kreatif dan otentik."
+            },
+            {
+                question: "12. Seorang siswa menunjukkan hasil proyek desain grafis yang bagus, namun penggunaan warna dan font-nya tidak konsisten. Bagaimana Anda memberikan umpan balik yang paling efektif untuk pengembangan pembelajarannya?",
+                answerOptions: [
+                    {
+                        text: "'Desainmu bagus, tapi warnanya norak dan font-nya jelek.'",
+                        rationale: "Umpan balik yang menghakimi dan tidak spesifik tidak konstruktif dan bisa menjatuhkan motivasi siswa.",
+                        isCorrect: false
+                    },
+                    {
+                        text: "'Secara keseluruhan, idemu kreatif! Untuk membuat desainmu terlihat lebih profesional, coba pertimbangkan prinsip keselarasan. Bagaimana jika kita coba beberapa kombinasi warna dan font yang selaras untuk melihat perbedaannya?'",
+                        rationale: "Umpan balik ini diawali dengan apresiasi, spesifik pada area perbaikan (konsistensi warna/font), menghubungkan ke prinsip desain, dan menawarkan bantuan konkret untuk perbaikan.",
+                        isCorrect: true
+                    },
+                    {
+                        text: "Langsung mengedit desain siswa menjadi lebih baik tanpa penjelasan.",
+                        rationale: "Ini tidak mendidik siswa; mereka tidak belajar dari proses perbaikan yang dilakukan oleh guru.",
+                        isCorrect: false
+                    },
+                    {
+                        text: "Meminta siswa mencari contoh desain yang bagus di internet dan menirunya.",
+                        rationale: "Meskipun bisa menjadi referensi, ini tidak mengatasi masalah pemahaman siswa tentang prinsip desain yang lebih mendalam.",
+                        isCorrect: false
+                    }
+                ],
+                hint: "Umpan balik yang efektif bersifat apresiatif, spesifik, dan berorientasi pada perbaikan, bukan penghakiman."
+            },
+            {
+                question: "13. Anda perlu menyusun laporan capaian belajar mata pelajaran Informatika untuk orang tua siswa. Apa saja aspek yang penting untuk Anda cantumkan agar laporan tersebut informatif dan berpusat pada peserta didik?",
+                answerOptions: [
+                    {
+                        text: "Hanya nilai akhir dan peringkat siswa di kelas.",
+                        rationale: "Ini memberikan informasi yang terbatas dan tidak detail tentang perkembangan individual siswa.",
+                        isCorrect: false
+                    },
+                    {
+                        text: "Rangkuman capaian kompetensi yang spesifik (misal: 'mampu membuat program dengan loop', 'memahami keamanan internet'), kekuatan siswa, area yang perlu ditingkatkan, serta saran konkret untuk dukungan di rumah.",
+                        rationale: "Laporan seperti ini memberikan gambaran holistik tentang pembelajaran siswa, berpusat pada perkembangan mereka dan memberikan panduan bagi orang tua.",
+                        isCorrect: true
+                    },
+                    {
+                        text: "Daftar semua tugas yang telah dikerjakan siswa beserta skor masing-masing.",
+                        rationale: "Meskipun detail, ini terlalu mentah dan tidak memberikan narasi atau interpretasi tentang perkembangan siswa.",
+                        isCorrect: false
+                    },
+                    {
+                        text: "Perbandingan nilai siswa dengan rata-rata kelas.",
+                        rationale: "Fokus pada perbandingan dengan teman bisa jadi tidak sehat dan kurang berpusat pada perkembangan individu.",
+                        isCorrect: false
+                    }
+                ],
+                hint: "Laporan yang baik harus memberikan gambaran lengkap tentang apa yang siswa sudah bisa lakukan dan apa yang masih perlu ditingkatkan, dengan saran untuk orang tua."
+            },
+            {
+                question: "14. Anda perlu mengkomunikasikan laporan capaian belajar siswa kepada orang tua yang memiliki latar belakang pendidikan dan pemahaman teknologi yang beragam. Strategi komunikasi yang paling efektif adalah...",
+                answerOptions: [
+                    {
+                        text: "Mengirimkan laporan digital yang sangat teknis melalui email.",
+                        rationale: "Format yang terlalu teknis atau hanya digital mungkin sulit dipahami oleh orang tua dengan pemahaman teknologi yang beragam.",
+                        isCorrect: false
+                    },
+                    {
+                        text: "Mengadakan sesi pertemuan tatap muka individu, menggunakan bahasa yang mudah dipahami (menghindari jargon teknis), dan memberikan kesempatan bagi orang tua untuk bertanya serta berdiskusi tentang bagaimana mereka bisa mendukung anak di rumah.",
+                        rationale: "Komunikasi personal, penggunaan bahasa yang sederhana, dan kesempatan berdiskusi adalah kunci untuk melibatkan orang tua dengan beragam latar belakang.",
+                        isCorrect: true
+                    },
+                    {
+                        text: "Meminta siswa menyampaikan sendiri laporan capaiannya kepada orang tua di rumah.",
+                        rationale: "Ini membebankan tanggung jawab komunikasi utama kepada siswa dan tidak menjamin pemahaman orang tua.",
+                        isCorrect: false
+                    },
+                    {
+                        text: "Menempelkan daftar nilai di papan pengumuman sekolah.",
+                        rationale: "Ini melanggar privasi siswa dan tidak memberikan konteks atau penjelasan tentang capaian belajar.",
+                        isCorrect: false
+                    }
+                ],
+                hint: "Pilih metode yang paling personal dan mudah diakses oleh audiens yang beragam."
+            },
+            {
+                question: "15. Dalam menghadapi tekanan untuk meningkatkan nilai rata-rata kelas secara instan, seorang guru berpegang teguh pada prinsip 'Pendidikan yang berpihak pada anak'. Tindakan apa yang paling mencerminkan prinsip ini?",
+                answerOptions: [
+                    {
+                        text: "Memberikan banyak tugas remedial dan hukuman bagi siswa yang nilainya rendah.",
+                        rationale: "Pendekatan ini berfokus pada hasil instan dan hukuman, bukan pada kebutuhan belajar individual siswa.",
+                        isCorrect: false
+                    },
+                    {
+                        text: "Memanipulasi nilai siswa agar rata-rata kelas memenuhi target sekolah.",
+                        rationale: "Ini adalah tindakan tidak etis dan tidak berpihak pada perkembangan autentik siswa.",
+                        isCorrect: false
+                    },
+                    {
+                        text: "Menganalisis kesulitan belajar setiap siswa, menerapkan strategi diferensiasi, dan fokus pada proses peningkatan pemahaman siswa, meskipun hasilnya tidak instan.",
+                        rationale: "Pendidikan yang berpihak pada anak mengutamakan proses belajar, kebutuhan individual, dan perkembangan holistik siswa, bukan sekadar angka.",
+                        isCorrect: true
+                    },
+                    {
+                        text: "Mengajar lebih cepat agar materi bisa selesai sebelum ujian dan siswa punya banyak waktu untuk menghafal.",
+                        rationale: "Mengajar lebih cepat tanpa memperhatikan pemahaman siswa tidak berpihak pada kebutuhan belajar mereka.",
+                        isCorrect: false
+                    }
+                ],
+                hint: "Prinsip 'berpihak pada anak' selalu mengutamakan kebutuhan, proses, dan perkembangan individual siswa di atas target angka semata."
+            },
+            {
+                question: "16. Anda merasa sangat frustrasi karena banyak siswa sering lupa membawa modul atau buku teks Informatika saat pelajaran. Menurut teori pengelolaan emosi yang efektif, langkah pertama yang sebaiknya Anda lakukan adalah...",
+                answerOptions: [
+                    {
+                        text: "Langsung menegur siswa-siswa tersebut di depan kelas dengan nada tinggi.",
+                        rationale: "Menegur dengan emosi dapat memperburuk situasi dan tidak efektif untuk menyelesaikan masalah.",
+                        isCorrect: false
+                    },
+                    {
+                        text: "Menenangkan diri sejenak, mengidentifikasi emosi frustrasi yang dirasakan, dan mencari tahu akar masalah mengapa siswa sering lupa (misal: kurang motivasi, manajemen waktu buruk, tidak punya buku fisik).",
+                        rationale: "Pengelolaan emosi yang efektif dimulai dengan kesadaran diri terhadap emosi dan berusaha memahami akar masalah, bukan bereaksi impulsif.",
+                        isCorrect: true
+                    },
+                    {
+                        text: "Mengirimkan pesan ke grup orang tua siswa agar mereka memastikan anak-anak membawa modul.",
+                        rationale: "Meskipun bisa jadi langkah selanjutnya, ini tidak mengatasi pengelolaan emosi pribadi guru terlebih dahulu.",
+                        isCorrect: false
+                    },
+                    {
+                        text: "Mengabaikan masalah tersebut agar tidak menambah beban pikiran.",
+                        rationale: "Mengabaikan masalah tidak akan menyelesaikan dan bisa menimbulkan frustrasi berulang.",
+                        isCorrect: false
+                    }
+                ],
+                hint: "Manajemen emosi dimulai dari diri sendiri, dengan mengenali perasaan dan mencari tahu penyebabnya sebelum bertindak."
+            },
+            {
+                question: "17. Seorang rekan guru Informatika mengeluh karena harus mengikuti pelatihan TIK terbaru yang dianggap 'membuang waktu' dan 'tidak relevan'. Sebagai guru yang menjunjung kode etik dan pengembangan diri, bagaimana Anda merespons keluhan tersebut?",
+                answerOptions: [
+                    {
+                        text: "Membenarkan keluhan tersebut dan ikut mengeluh agar terkesan solider.",
+                        rationale: "Ini tidak mendukung pengembangan diri profesional atau kode etik guru yang mendorong pembelajaran sepanjang hayat.",
+                        isCorrect: false
+                    },
+                    {
+                        text: "Mengingatkan rekan bahwa sebagai guru Informatika, kita memiliki tanggung jawab profesional untuk terus memperbarui pengetahuan dan keterampilan kita agar tetap relevan, serta menawarkan untuk berdiskusi tentang bagaimana materi pelatihan bisa diterapkan di kelas.",
+                        rationale: "Respon ini menunjukkan pemahaman akan kode etik (pengembangan profesional) dan menawarkan kolaborasi konstruktif.",
+                        isCorrect: true
+                    },
+                    {
+                        text: "Melaporkan rekan guru tersebut kepada kepala sekolah karena tidak antusias terhadap pengembangan diri.",
+                        rationale: "Tindakan ini terlalu ekstrem dan tidak mendorong dialog atau perubahan positif.",
+                        isCorrect: false
+                    },
+                    {
+                        text: "Mengabaikan keluhan tersebut dan tetap fokus pada pengembangan diri sendiri.",
+                        rationale: "Meskipun fokus pada diri sendiri itu baik, kesempatan untuk memberikan bimbingan rekan sejawat akan hilang.",
+                        isCorrect: false
+                    }
+                ],
+                hint: "Respons yang baik menyeimbangkan etika profesional dengan sikap kolegial yang konstruktif."
+            },
+            {
+                question: "18. Setelah mengajar materi 'Keamanan Data Pribadi', Anda merefleksikan bahwa banyak siswa masih sering membagikan informasi pribadi di media sosial. Bagaimana Anda melakukan refleksi dan perencanaan kebutuhan pengembangan diri yang berpusat pada peserta didik terkait masalah ini?",
+                answerOptions: [
+                    {
+                        text: "Menyimpulkan bahwa siswa memang bandel dan tidak peduli keamanan.",
+                        rationale: "Kesimpulan ini bersifat menghakimi dan tidak membantu mengidentifikasi akar masalah pembelajaran.",
+                        isCorrect: false
+                    },
+                    {
+                        text: "Menganalisis umpan balik siswa dan hasil asesmen, mungkin melakukan survei anonim untuk memahami alasan mereka (misal: kurangnya pemahaman risiko, tekanan teman sebaya), lalu merencanakan sesi tambahan atau penggunaan media pembelajaran yang lebih interaktif dan relevan.",
+                        rationale: "Pendekatan ini berpusat pada peserta didik karena berawal dari analisis kebutuhan dan karakteristik mereka, kemudian merencanakan pengembangan diri guru untuk mengatasi masalah pembelajaran.",
+                        isCorrect: true
+                    },
+                    {
+                        text: "Mengikuti seminar tentang 'Tren Keamanan Siber Terbaru' untuk meningkatkan pengetahuan konten Anda.",
+                        rationale: "Meskipun baik, ini tidak secara langsung mengatasi masalah pedagogis atau kebutuhan spesifik siswa dalam konteks kebiasaan mereka.",
+                        isCorrect: false
+                    },
+                    {
+                        text: "Mengubah total metode pengajaran tanpa menganalisis akar masalahnya.",
+                        rationale: "Perubahan tanpa analisis yang mendalam mungkin tidak efektif.",
+                        isCorrect: false
+                    }
+                ],
+                hint: "Refleksi yang berpusat pada peserta didik dimulai dengan memahami 'mengapa' siswa berperilaku seperti itu, dan kemudian merencanakan strategi perbaikan yang ditargetkan."
+            },
+            {
+                question: "19. Anda mengikuti pelatihan tentang 'Gamifikasi dalam Pembelajaran Informatika'. Setelah pelatihan, bagaimana Anda mengembangkan cara adaptif untuk menerapkan hasil pelatihan ini guna meningkatkan pembelajaran yang berpusat pada peserta didik?",
+                answerOptions: [
+                    {
+                        text: "Memaksa semua materi pelajaran harus diubah menjadi game, tanpa mempertimbangkan relevansinya.",
+                        rationale: "Penerapan yang tidak adaptif akan menyebabkan materi tidak tersampaikan dengan baik atau siswa kehilangan esensi pembelajaran.",
+                        isCorrect: false
+                    },
+                    {
+                        text: "Mengidentifikasi konsep-konsep Informatika yang paling sulit atau kurang diminati siswa, lalu merancang aktivitas gamifikasi mini (misal: poin, lencana, leaderboard sederhana) untuk konsep-konsep tersebut, dengan tetap mengacu pada tujuan pembelajaran dan preferensi siswa.",
+                        rationale: "Pendekatan adaptif berarti menerapkan inovasi sesuai kebutuhan dan konteks spesifik siswa, bukan menerapkan secara membabi buta.",
+                        isCorrect: true
+                    },
+                    {
+                        text: "Mencari game edukasi Informatika yang sudah jadi di internet dan hanya menggunakannya tanpa modifikasi.",
+                        rationale: "Meskipun bisa digunakan, ini tidak menunjukkan adaptasi atau pengembangan diri guru dalam merancang sendiri.",
+                        isCorrect: false
+                    },
+                    {
+                        text: "Hanya menerapkan gamifikasi pada siswa yang motivasinya rendah saja.",
+                        rationale: "Gamifikasi bisa bermanfaat untuk semua siswa, dan adaptasi berarti mempertimbangkan bagaimana hal itu bisa meningkatkan pembelajaran secara keseluruhan.",
+                        isCorrect: false
+                    }
+                ],
+                hint: "Adaptasi berarti menerapkan hasil pelatihan secara selektif dan disesuaikan dengan kebutuhan spesifik siswa atau materi pelajaran."
+            },
+            {
+                question: "20. Anda telah berhasil mengimplementasikan metode 'Peer Programming' (pemrograman berpasangan) di kelas Informatika dan melihat peningkatan kolaborasi siswa. Untuk menampilkan penerapan hasil pengembangan diri ini, langkah yang paling tepat adalah...",
+                answerOptions: [
+                    {
+                        text: "Menulis laporan pribadi dan menyimpannya di file komputer Anda.",
+                        rationale: "Ini tidak 'menampilkan' atau membagikan praktik baik kepada orang lain.",
+                        isCorrect: false
+                    },
+                    {
+                        text: "Menyusun artikel singkat atau presentasi tentang pengalaman mengajar dengan Peer Programming, mencakup tantangan dan keberhasilan, lalu mempresentasikannya dalam forum KKG (Kelompok Kerja Guru) atau lokakarya internal sekolah.",
+                        rationale: "Mempresentasikan atau berbagi praktik baik dalam forum profesional adalah cara efektif untuk menampilkan penerapan hasil pengembangan diri dan menginspirasi rekan sejawat.",
+                        isCorrect: true
+                    },
+                    {
+                        text: "Hanya menceritakan keberhasilan ini kepada siswa Anda.",
+                        rationale: "Meskipun baik, ini tidak mencapai tujuan 'menampilkan penerapan hasil pengembangan diri' kepada komunitas yang lebih luas.",
+                        isCorrect: false
+                    },
+                    {
+                        text: "Mempublikasikan foto siswa saat sedang Peer Programming di media sosial sekolah.",
+                        rationale: "Ini bisa menjadi bagian dari promosi, tetapi belum tentu menampilkan 'penerapan hasil pengembangan diri' secara pedagogis.",
+                        isCorrect: false
+                    }
+                ],
+                hint: "Menampilkan hasil pengembangan diri berarti membagikan pengetahuan dan pengalaman Anda kepada komunitas guru lainnya."
+            },
+            {
+                question: "21. Seorang siswa di kelas Informatika Anda menunjukkan ketertarikan tinggi pada robotika. Bagaimana Anda menerapkan interaksi aktif dan empatik dalam pembelajaran yang berpusat pada peserta didik untuk memanfaatkan minatnya?",
+                answerOptions: [
+                    {
+                        text: "Memberi tahu siswa untuk belajar robotika sendiri setelah pulang sekolah.",
+                        rationale: "Ini tidak menunjukkan interaksi aktif dan empati dalam konteks pembelajaran di kelas.",
+                        isCorrect: false
+                    },
+                    {
+                        text: "Mengajak siswa berdiskusi tentang minatnya, menghubungkan konsep pemrograman yang sedang dipelajari dengan aplikasi robotika, dan mungkin memberikan tantangan opsional yang relevan atau merekomendasikan sumber belajar tambahan yang spesifik.",
+                        rationale: "Ini menunjukkan empati terhadap minat siswa, membangun interaksi aktif, dan mengadaptasi pembelajaran untuk berpusat pada minat individu.",
+                        isCorrect: true
+                    },
+                    {
+                        text: "Meminta siswa mengajar teman-temannya tentang robotika.",
+                        rationale: "Meskipun bisa memberdayakan siswa, ini mungkin terlalu membebankan dan tidak menggantikan peran guru dalam memfasilitasi pembelajaran.",
+                        isCorrect: false
+                    },
+                    {
+                        text: "Mengabaikan minat spesifiknya dan tetap fokus pada kurikulum standar untuk semua siswa.",
+                        rationale: "Ini mengabaikan prinsip pembelajaran yang berpusat pada peserta didik dan tidak memanfaatkan potensi minat siswa.",
+                        isCorrect: false
+                    }
+                ],
+                hint: "Interaksi aktif dan empatik berarti mendengarkan minat siswa dan mencari cara untuk mengintegrasikannya ke dalam pembelajaran."
+            },
+            {
+                question: "22. Anda memiliki siswa dengan kebutuhan khusus yang menggunakan perangkat lunak pembaca layar untuk mengakses materi digital. Bagaimana Anda menunjukkan respek terhadap hak peserta didik ini sebagai individu dalam menjalankan peran sebagai guru Informatika?",
+                answerOptions: [
+                    {
+                        text: "Memberikan semua materi dalam format cetak agar siswa tidak perlu menggunakan perangkatnya.",
+                        rationale: "Ini mungkin membatasi akses siswa terhadap materi digital yang seharusnya menjadi bagian dari kurikulum Informatika.",
+                        isCorrect: false
+                    },
+                    {
+                        text: "Memastikan semua materi digital (slide presentasi, dokumen, website) yang Anda gunakan atau buat telah dioptimalkan untuk aksesibilitas (misal: menggunakan deskripsi gambar, struktur heading yang jelas, teks yang dapat dipilih), dan melatih diri Anda dalam penggunaan dasar perangkat lunak pembaca layar.",
+                        rationale: "Tindakan ini secara proaktif mendukung hak akses siswa dan menunjukkan komitmen guru terhadap inklusivitas.",
+                        isCorrect: true
+                    },
+                    {
+                        text: "Meminta siswa untuk menjelaskan cara kerja perangkat lunak pembaca layar kepada seluruh kelas.",
+                        rationale: "Meskipun bisa jadi aktivitas yang mendidik bagi kelas, ini membebankan tanggung jawab edukasi pada siswa berkebutuhan khusus.",
+                        isCorrect: false
+                    },
+                    {
+                        text: "Membiarkan siswa belajar secara mandiri dengan perangkatnya tanpa intervensi guru.",
+                        rationale: "Ini tidak memberikan dukungan aktif dan bisa membuat siswa merasa terisolasi.",
+                        isCorrect: false
+                    }
+                ],
+                hint: "Menunjukkan respek berarti memastikan akses yang setara dan aktif mendukung kebutuhan khusus siswa."
+            },
+            {
+                question: "23. Saat praktik di laboratorium komputer, salah satu siswa tidak sengaja menyenggol kabel proyektor, menyebabkan proyektor jatuh dan rusak. Bagaimana Anda menunjukkan kepedulian terhadap keselamatan dan keamanan peserta didik (serta fasilitas) dalam situasi ini?",
+                answerOptions: [
+                    {
+                        text: "Langsung memarahi siswa tersebut dan memintanya mengganti rugi.",
+                        rationale: "Reaksi marah tidak akan efektif dalam situasi darurat dan bisa membuat siswa takut untuk melaporkan insiden di masa depan.",
+                        isCorrect: false
+                    },
+                    {
+                        text: "Segera memastikan tidak ada siswa yang terluka, mengamankan area (misal: menjauhkan siswa dari proyektor yang rusak dan pecahan kaca), lalu menenangkan siswa yang menyenggol dan menjelaskan prosedur pelaporan insiden.",
+                        rationale: "Prioritas utama adalah keselamatan siswa. Tindakan cepat untuk mengamankan area dan memberikan dukungan emosional kepada siswa menunjukkan kepedulian.",
+                        isCorrect: true
+                    },
+                    {
+                        text: "Meminta siswa lain yang melihat kejadian untuk bersaksi siapa yang menjatuhkan proyektor.",
+                        rationale: "Ini fokus pada pencarian kesalahan, bukan pada penanganan insiden dan keselamatan.",
+                        isCorrect: false
+                    },
+                    {
+                        text: "Mencatat nama siswa yang bersangkutan untuk dilaporkan ke kepala sekolah nanti.",
+                        rationale: "Pencatatan adalah langkah selanjutnya, bukan respons pertama terhadap insiden keselamatan.",
+                        isCorrect: false
+                    }
+                ],
+                hint: "Prioritas utama dalam insiden adalah keamanan fisik dan emosional. Respons yang cepat dan tenang adalah kunci."
+            },
+            {
+                question: "24. Anda melihat adanya gap antara kemampuan literasi digital siswa di kelas Anda. Beberapa siswa mahir mencari informasi, sementara yang lain kesulitan membedakan sumber kredibel. Bagaimana Anda membangun komunikasi efektif bersama warga sekolah (misal: guru lain, pustakawan) untuk peningkatan pembelajaran ini?",
+                answerOptions: [
+                    {
+                        text: "Mengeluh kepada rekan guru tentang rendahnya literasi digital siswa.",
+                        rationale: "Mengeluh tanpa tindakan tidak efektif.",
+                        isCorrect: false
+                    },
+                    {
+                        text: "Mengusulkan kepada kepala sekolah untuk mengadakan workshop literasi digital untuk guru dan siswa, serta berkolaborasi dengan pustakawan sekolah untuk menyusun modul literasi informasi yang terintegrasi di berbagai mata pelajaran.",
+                        rationale: "Menginisiasi kolaborasi lintas departemen menunjukkan kepemimpinan, komunikasi efektif, dan berorientasi pada solusi untuk peningkatan pembelajaran di seluruh sekolah.",
+                        isCorrect: true
+                    },
+                    {
+                        text: "Hanya fokus pada pengajaran di kelas Anda sendiri tanpa melibatkan pihak lain.",
+                        rationale: "Masalah literasi digital seringkali lintas mata pelajaran dan membutuhkan pendekatan holistik dari seluruh komunitas sekolah.",
+                        isCorrect: false
+                    },
+                    {
+                        text: "Membentuk tim khusus siswa untuk melatih teman-teman mereka.",
+                        rationale: "Meskipun peer tutoring baik, masalah sistemik membutuhkan komunikasi dan kolaborasi dari pihak guru dan manajemen sekolah.",
+                        isCorrect: false
+                    }
+                ],
+                hint: "Komunikasi efektif untuk peningkatan pembelajaran melibatkan inisiatif dan kolaborasi dengan berbagai pemangku kepentingan di sekolah."
+            },
+            {
+                question: "25. Anda dan rekan guru sedang merencanakan sebuah kegiatan 'Hari Informatika Sekolah' yang melibatkan berbagai lomba dan demo teknologi. Bagaimana Anda mengorganisir tugas-tugas bersama rekan sejawat untuk mencapai peningkatan pembelajaran (keterampilan teknologi dan minat siswa)?",
+                answerOptions: [
+                    {
+                        text: "Menunggu instruksi dari kepala sekolah tentang siapa yang harus melakukan apa.",
+                        rationale: "Ini bersifat pasif dan tidak mencerminkan inisiatif dalam mengorganisir tugas.",
+                        isCorrect: false
+                    },
+                    {
+                        text: "Membagi tugas berdasarkan minat dan keahlian masing-masing guru (misal: guru A mengurus lomba coding, guru B mengurus demo robotika), menetapkan deadline yang jelas, dan mengadakan rapat koordinasi rutin untuk memantau progres dan mengatasi kendala.",
+                        rationale: "Organisasi tugas yang efektif melibatkan delegasi berdasarkan kekuatan, penetapan tenggat waktu, dan komunikasi rutin untuk memastikan koordinasi dan efisiensi.",
+                        isCorrect: true
+                    },
+                    {
+                        text: "Membiarkan setiap guru mengerjakan apa yang menurutnya penting untuk acara tersebut.",
+                        rationale: "Pendekatan tanpa koordinasi ini akan menyebabkan duplikasi atau ada tugas yang terlewat.",
+                        isCorrect: false
+                    },
+                    {
+                        text: "Mengambil alih sebagian besar tugas karena merasa paling mampu melakukannya.",
+                        rationale: "Ini bisa menyebabkan kelelahan pada satu orang dan tidak memberdayakan rekan sejawat.",
+                        isCorrect: false
+                    }
+                ],
+                hint: "Pengorganisasian tugas yang efektif melibatkan perencanaan, pembagian kerja yang jelas, dan koordinasi berkelanjutan."
+            },
+            {
+                question: "26. Anda melihat peluang untuk meningkatkan pembelajaran di sekolah melalui pemanfaatan 'Learning Management System (LMS)' yang lebih optimal. Bagaimana Anda berinisiatif memberikan kontribusi untuk mencapai tujuan bersama dalam peningkatan pembelajaran ini?",
+                answerOptions: [
+                    {
+                        text: "Menunggu sampai sekolah secara resmi meminta Anda untuk menjadi ahli LMS.",
+                        rationale: "Ini tidak menunjukkan inisiatif.",
+                        isCorrect: false
+                    },
+                    {
+                        text: "Mempelajari fitur-fitur LMS secara mandiri, membuat modul tutorial singkat untuk rekan guru, dan menawarkan diri untuk berbagi praktik baik penggunaan LMS dalam rapat guru atau sesi berbagi informal.",
+                        rationale: "Inisiatif seperti ini menunjukkan kontribusi aktif dalam pengembangan profesional rekan sejawat dan peningkatan kualitas pembelajaran secara keseluruhan.",
+                        isCorrect: true
+                    },
+                    {
+                        text: "Mengkritik penggunaan LMS yang kurang maksimal di rapat guru.",
+                        rationale: "Kritik tanpa solusi atau kontribusi positif tidak konstruktif.",
+                        isCorrect: false
+                    },
+                    {
+                        text: "Menyusun proposal lengkap tentang fitur-fitur LMS yang harus dibeli sekolah di masa depan.",
+                        rationale: "Meskipun bisa menjadi bagian dari kontribusi, ini mungkin terlalu ambisius sebagai langkah inisiatif awal dan tidak fokus pada peningkatan penggunaan LMS yang sudah ada.",
+                        isCorrect: false
+                    }
+                ],
+                hint: "Inisiatif berarti bertindak proaktif untuk memberikan nilai tambah dan membantu rekan sejawat."
+            },
+            {
+                question: "27. Seorang orang tua mengeluhkan bahwa anaknya kesulitan memahami materi pemrograman di rumah karena tidak ada komputer. Bagaimana Anda memberikan pendampingan kepada orang tua/wali untuk mendukung pembelajaran di rumah yang berpusat pada peserta didik?",
+                answerOptions: [
+                    {
+                        text: "Menyalahkan orang tua karena tidak menyediakan fasilitas yang memadai.",
+                        rationale: "Menyalahkan orang tua tidak akan membangun kolaborasi atau menyelesaikan masalah.",
+                        isCorrect: false
+                    },
+                    {
+                        text: "Menyarankan aktivitas 'unplugged' (tanpa komputer) yang dapat dilakukan di rumah (misal: bermain kartu biner, membuat algoritma memasak) untuk melatih konsep pemrograman, dan memberikan sumber belajar alternatif yang bisa diakses tanpa komputer.",
+                        rationale: "Pendampingan ini adaptif terhadap kondisi keluarga, berpusat pada siswa dengan menyediakan aktivitas yang bisa mereka lakukan, dan membangun kolaborasi positif dengan orang tua.",
+                        isCorrect: true
+                    },
+                    {
+                        text: "Mengundang orang tua ke sekolah untuk menggunakan komputer lab di luar jam pelajaran.",
+                        rationale: "Meskipun membantu, ini mungkin tidak praktis bagi semua orang tua dan tidak memberikan solusi untuk belajar di rumah.",
+                        isCorrect: false
+                    },
+                    {
+                        text: "Memberikan tugas tambahan yang harus diselesaikan di sekolah.",
+                        rationale: "Ini tidak mengatasi masalah belajar di rumah dan bisa membebani siswa.",
+                        isCorrect: false
+                    }
+                ],
+                hint: "Pendampingan yang efektif mempertimbangkan kondisi keluarga dan menawarkan solusi yang bisa diterapkan di lingkungan rumah."
+            },
+            {
+                question: "28. Dalam proyek pembuatan aplikasi berbasis web, Anda ingin melibatkan masyarakat sekitar untuk memberikan masukan ide atau perspektif. Bagaimana Anda mengimplementasikan pengetahuan, keahlian, dan perspektif orang tua/wali dan masyarakat dalam pembelajaran yang berpusat pada peserta didik?",
+                answerOptions: [
+                    {
+                        text: "Mengundang semua orang tua ke presentasi akhir proyek dan meminta mereka memberi tepuk tangan.",
+                        rationale: "Ini adalah keterlibatan pasif di akhir, bukan pemanfaatan keahlian dan perspektif selama proses pembelajaran.",
+                        isCorrect: false
+                    },
+                    {
+                        text: "Mengidentifikasi orang tua/wali atau tokoh masyarakat yang memiliki keahlian di bidang teknologi atau bisnis (misal: pemilik startup, desainer web, pemilik toko online), lalu mengundang mereka sebagai pembicara tamu atau mentor sukarela untuk memberikan feedback langsung pada ide atau prototipe siswa.",
+                        rationale: "Ini secara langsung melibatkan keahlian masyarakat untuk memperkaya pembelajaran siswa dan membuatnya lebih relevan dengan dunia nyata.",
+                        isCorrect: true
+                    },
+                    {
+                        text: "Meminta siswa untuk mencari di internet tentang aplikasi yang sukses di masyarakat.",
+                        rationale: "Ini adalah riset mandiri siswa, bukan keterlibatan langsung masyarakat.",
+                        isCorrect: false
+                    },
+                    {
+                        text: "Membuat survei online tentang opini masyarakat terhadap aplikasi yang akan dibuat siswa.",
+                        rationale: "Survei bisa memberikan data, tetapi kurang melibatkan interaksi langsung dan pemanfaatan keahlian personal.",
+                        isCorrect: false
+                    }
+                ],
+                hint: "Melibatkan masyarakat berarti memanfaatkan sumber daya manusia lokal (keahlian, pengalaman) untuk memberikan dampak nyata pada pembelajaran siswa."
+            },
+            {
+                question: "29. Anda menghadapi masalah di laboratorium komputer sekolah: beberapa komputer sering crash atau lemot. Anda ingin memecahkan masalah pembelajaran dalam organisasi profesi dan jejaring yang lebih luas. Langkah yang paling tepat adalah...",
+                answerOptions: [
+                    {
+                        text: "Mencoba memperbaiki komputer sendiri karena Anda guru Informatika.",
+                        rationale: "Meskipun memiliki kemampuan, ini bukan pendekatan kolaboratif dalam organisasi profesi.",
+                        isCorrect: false
+                    },
+                    {
+                        text: "Berpartisipasi aktif dalam forum diskusi online guru-guru Informatika se-kabupaten/kota untuk berbagi masalah yang sama, mencari solusi, atau meminta rekomendasi ahli/vendor yang terpercaya.",
+                        rationale: "Berpartisipasi dalam jejaring profesi memungkinkan berbagi masalah dan solusi dari pengalaman kolektif, yang merupakan cara efektif untuk memecahkan masalah pembelajaran di level yang lebih luas.",
+                        isCorrect: true
+                    },
+                    {
+                        text: "Mengusulkan kepada kepala sekolah untuk membeli komputer baru.",
+                        rationale: "Ini adalah solusi pengadaan, bukan pemecahan masalah kolaboratif dalam jejaring profesi.",
+                        isCorrect: false
+                    },
+                    {
+                        text: "Membuat petisi kepada dinas pendidikan agar menambah anggaran TIK sekolah.",
+                        rationale: "Meskipun bisa menjadi tindakan advokasi, ini adalah langkah yang lebih formal dan belum tentu merupakan langkah pertama dalam pemecahan masalah operasional.",
+                        isCorrect: false
+                    }
+                ],
+                hint: "Pemanfaatan jejaring profesi adalah tentang saling belajar dan mencari solusi bersama dari pengalaman kolektif."
+            },
+            {
+                question: "30. Anda telah mengembangkan sebuah modul interaktif 'Berpikir Komputasional dengan Analogi Sehari-hari' yang terbukti efektif meningkatkan pemahaman siswa. Bagaimana Anda memberi saran untuk peningkatan pembelajaran yang berpusat pada peserta didik dalam organisasi dan jejaring yang lebih luas?",
+                answerOptions: [
+                    {
+                        text: "Mengajarkan modul tersebut hanya di kelas Anda dan merahasiakan metode Anda.",
+                        rationale: "Ini tidak mendukung berbagi praktik baik atau peningkatan pembelajaran di luar kelas sendiri.",
+                        isCorrect: false
+                    },
+                    {
+                        text: "Menyusun presentasi singkat atau artikel tentang modul dan hasilnya, lalu menawarkan diri untuk menjadi pembicara atau fasilitator dalam pertemuan KKG (Kelompok Kerja Guru) Informatika, atau mengunggah modul ke platform berbagi sumber belajar guru.",
+                        rationale: "Berbagi praktik baik melalui presentasi di forum profesional atau platform berbagi adalah cara efektif untuk memberikan saran dan menginspirasi peningkatan pembelajaran berpusat pada siswa di jejaring yang lebih luas.",
+                        isCorrect: true
+                    },
+                    {
+                        text: "Mengajukan proposal agar modul Anda menjadi standar nasional.",
+                        rationale: "Ini adalah langkah yang terlalu besar; dimulai dengan berbagi di komunitas lebih efektif.",
+                        isCorrect: false
+                    },
+                    {
+                        text: "Mengirimkan email berisi modul tersebut kepada semua guru Informatika di seluruh Indonesia tanpa pengantar.",
+                        rationale: "Tanpa konteks atau presentasi yang tepat, email semacam itu mungkin diabaikan.",
+                        isCorrect: false
+                    }
+                ],
+                hint: "Berbagi praktik baik yang efektif melibatkan presentasi yang jelas dan penawaran untuk mendukung implementasi oleh orang lain."
+            },
+            {
+                question: "31. Anda akan mengajarkan materi 'Dasar-dasar Pemrograman: Urutan dan Kondisi'. Bagaimana Anda menerapkan struktur dan alur pengetahuan dari bidang keilmuan Informatika yang relevan untuk pembelajaran ini?",
+                answerOptions: [
+                    {
+                        text: "Memulai dengan proyek pembuatan aplikasi kompleks yang menggunakan banyak urutan dan kondisi sekaligus.",
+                        rationale: "Memulai dengan kompleksitas tinggi tanpa dasar akan membingungkan siswa.",
+                        isCorrect: false
+                    },
+                    {
+                        text: "Mengikuti urutan: menjelaskan konsep sekuensial (urutan langkah) melalui contoh kegiatan sehari-hari, kemudian mengenalkan konsep kondisional (pemilihan aksi berdasarkan syarat) menggunakan contoh sederhana, dan baru kemudian mengintegrasikan keduanya dalam masalah pemrograman.",
+                        rationale: "Urutan ini mencerminkan struktur pengetahuan dasar pemrograman yang logis: sekuensial adalah fondasi, lalu kondisi adalah kompleksitas berikutnya.",
+                        isCorrect: true
+                    },
+                    {
+                        text: "Menjelaskan sejarah perkembangan bahasa pemrograman.",
+                        rationale: "Informasi historis tidak relevan dengan penerapan struktur pengetahuan fungsional.",
+                        isCorrect: false
+                    },
+                    {
+                        text: "Memberikan semua teori sekaligus agar siswa menguasai sepenuhnya.",
+                        rationale: "Pendekatan 'sekali tembak' tidak efektif untuk pemahaman yang mendalam.",
+                        isCorrect: false
+                    }
+                ],
+                hint: "Pikirkan urutan alami dari konsep-konsep dasar dalam pemrograman: dari yang paling sederhana dan berurutan menuju yang lebih kompleks dan bercabang."
+            },
+            {
+                question: "32. Dalam mengajarkan 'Pengenalan Jaringan Komputer', Anda ingin memastikan siswa memahami peran setiap komponen (router, switch, kabel). Bagaimana Anda menerapkan pengetahuan konten yang relevan untuk mencapai tujuan pembelajaran ini?",
+                answerOptions: [
+                    {
+                        text: "Memberikan gambar komponen dan meminta siswa menghafal namanya.",
+                        rationale: "Ini hanya pada level ingatan, tidak memastikan pemahaman peran/fungsi.",
+                        isCorrect: false
+                    },
+                    {
+                        text: "Mendemonstrasikan fungsi setiap komponen dengan skenario nyata: 'Bagaimana data dari laptopmu bisa sampai ke internet?', menelusuri jalannya data melalui router dan switch, serta menunjukkan kabel yang menghubungkan semuanya.",
+                        rationale: "Mendemonstrasikan dalam skenario nyata secara fungsional menghubungkan setiap komponen dengan perannya, membuat pengetahuan konten lebih relevan dan mudah dipahami.",
+                        isCorrect: true
+                    },
+                    {
+                        text: "Meminta siswa membongkar komputer untuk melihat komponen jaringannya.",
+                        rationale: "Meskipun praktis, ini bisa berisiko dan fokusnya terlalu spesifik pada hardware, bukan konsep jaringan secara keseluruhan.",
+                        isCorrect: false
+                    },
+                    {
+                        text: "Membuat soal latihan tentang kecepatan transmisi data pada berbagai jenis kabel.",
+                        rationale: "Ini adalah detail teknis yang lebih dalam, belum tentu relevan untuk pengenalan peran dasar komponen.",
+                        isCorrect: false
+                    }
+                ],
+                hint: "Terapkan pengetahuan konten dengan menunjukkan bagaimana setiap komponen 'bekerja' dalam sebuah sistem yang berfungsi."
+            },
+            {
+                question: "33. Anda ingin siswa dapat membuat diagram alir (flowchart) untuk memecahkan masalah sederhana. Bagaimana Anda mengorganisasikan pengetahuan konten (simbol, alur, logika) yang relevan untuk menyusun alur tujuan pembelajaran?",
+                answerOptions: [
+                    {
+                        text: "Memberikan contoh flowchart kompleks dan meminta siswa menganalisisnya.",
+                        rationale: "Memulai dengan contoh kompleks tanpa dasar akan membingungkan.",
+                        isCorrect: false
+                    },
+                    {
+                        text: "Memulai dengan pengenalan simbol dasar (mulai/selesai, proses, input/output, keputusan), kemudian berlatih membuat flowchart untuk algoritma sekuensial sederhana, lalu ke algoritma dengan percabangan (kondisi), dan terakhir melibatkan perulangan.",
+                        rationale: "Urutan ini mengikuti tingkat kompleksitas dalam merancang algoritma: dari dasar hingga lebih kompleks dengan penambahan struktur kendali.",
+                        isCorrect: true
+                    },
+                    {
+                        text: "Meminta siswa langsung membuat flowchart untuk game yang mereka sukai.",
+                        rationale: "Ini adalah tugas proyek tanpa fondasi yang cukup dalam pengorganisasian pengetahuan konten.",
+                        isCorrect: false
+                    },
+                    {
+                        text: "Fokus pada penggunaan aplikasi pembuat flowchart yang canggih.",
+                        rationale: "Fokus pada alat daripada konsep akan mengalihkan perhatian dari tujuan utama pembelajaran.",
+                        isCorrect: false
+                    }
+                ],
+                hint: "Organisasikan pengetahuan konten dari yang paling dasar dan fundamental, lalu secara bertahap tingkatkan kompleksitasnya."
+            },
+            {
+                question: "34. Anda mengidentifikasi bahwa siswa di kelas Anda memiliki gaya belajar yang berbeda (misal: ada yang suka membaca, ada yang suka praktik, ada yang suka diskusi). Bagaimana Anda menerapkan strategi pembelajaran yang sesuai dengan karakteristik dan kebutuhan belajar peserta didik saat mengajarkan materi 'Dasar-dasar Aplikasi Pengolah Kata'?",
+                answerOptions: [
+                    {
+                        text: "Memberikan demonstrasi langkah-langkah di depan kelas dan meminta siswa menirunya.",
+                        rationale: "Ini hanya mengakomodasi gaya belajar visual dan praktik, kurang mengakomodasi yang suka membaca atau diskusi.",
+                        isCorrect: false
+                    },
+                    {
+                        text: "Menyediakan modul instruksional cetak (untuk pembaca), video tutorial (untuk visual-auditori), lembar kerja praktik mandiri (untuk kinestetik), dan sesi tanya jawab/diskusi kelompok untuk berbagi tips dan kesulitan.",
+                        rationale: "Pendekatan ini memberikan beragam opsi pembelajaran yang sesuai dengan karakteristik dan kebutuhan belajar yang berbeda.",
+                        isCorrect: true
+                    },
+                    {
+                        text: "Mengelompokkan siswa berdasarkan gaya belajar mereka dan memberikan tugas yang berbeda-beda.",
+                        rationale: "Meskipun bisa menjadi strategi, menyediakan beragam sumber untuk satu kelompok campuran lebih mendorong inklusi dan eksposur pada berbagai metode.",
+                        isCorrect: false
+                    },
+                    {
+                        text: "Meminta siswa belajar dari teman mereka yang sudah menguasai aplikasi.",
+                        rationale: "Ini membebankan tanggung jawab pengajaran pada siswa dan tidak memastikan semua siswa menerima materi yang komprehensif.",
+                        isCorrect: false
+                    }
+                ],
+                hint: "Diferensiasi proses berarti menyediakan berbagai jalur atau cara bagi siswa untuk mempelajari konten yang sama."
+            },
+            {
+                question: "35. Anda memiliki siswa dari berbagai latar belakang sosial-ekonomi, termasuk beberapa yang tidak memiliki akses internet di rumah. Bagaimana Anda menerapkan strategi pembelajaran yang sesuai dengan latar belakang ini saat mengajarkan materi 'Pencarian Informasi di Internet'?",
+                answerOptions: [
+                    {
+                        text: "Meminta semua siswa untuk melakukan riset di rumah menggunakan internet.",
+                        rationale: "Ini tidak adil dan tidak inklusif bagi siswa yang tidak memiliki akses internet di rumah.",
+                        isCorrect: false
+                    },
+                    {
+                        text: "Menyediakan waktu khusus di laboratorium komputer sekolah dengan akses internet yang stabil, atau menyediakan bahan bacaan offline/hardcopy tentang strategi pencarian informasi dan verifikasi sumber yang bisa dibawa pulang.",
+                        rationale: "Strategi ini mengakomodasi kesenjangan akses, memastikan semua siswa memiliki kesempatan untuk belajar konsep yang sama dengan cara yang relevan dengan kondisi mereka.",
+                        isCorrect: true
+                    },
+                    {
+                        text: "Meminta siswa yang memiliki akses internet untuk berbagi hasil pencarian dengan teman-teman yang tidak memiliki.",
+                        rationale: "Meskipun kolaboratif, ini masih membebani satu kelompok siswa dan tidak memberikan pengalaman langsung kepada yang lain.",
+                        isCorrect: false
+                    },
+                    {
+                        text: "Mengganti materi 'Pencarian Informasi di Internet' dengan topik lain yang tidak membutuhkan internet.",
+                        rationale: "Ini menghindari masalah daripada mengatasinya dan membatasi kurikulum siswa.",
+                        isCorrect: false
+                    }
+                ],
+                hint: "Pastikan setiap siswa memiliki kesempatan yang setara untuk mengakses materi dan sumber daya, dengan mempertimbangkan kondisi latar belakang mereka."
+            },
+            {
+                question: "36. Anda memiliki siswa, Dani, yang menunjukkan potensi besar dalam logika pemrograman namun kurang termotivasi karena ia merasa 'bosan' dengan tugas-tugas dasar. Bagaimana Anda menerapkan strategi pembelajaran yang sesuai dengan potensi dan minat Dani?",
+                answerOptions: [
+                    {
+                        text: "Memberikan tugas yang sama dengan teman-temannya agar Dani tidak merasa spesial.",
+                        rationale: "Ini mengabaikan potensi dan minat unik Dani, yang bisa menyebabkan dia kehilangan motivasi lebih lanjut.",
+                        isCorrect: false
+                    },
+                    {
+                        text: "Menugaskan Dani pada proyek 'challenge' opsional yang lebih kompleks (misal: menambahkan fitur ke program yang sudah ada, atau membuat algoritma untuk masalah yang lebih sulit), dan memberikan kebebasan dalam memilih alat atau topik sesuai minatnya (misal: game, simulasi sains).",
+                        rationale: "Strategi ini memberikan tantangan yang relevan dengan potensi Dani, memanfaatkan minatnya, dan mendorong motivasi intrinsik.",
+                        isCorrect: true
+                    },
+                    {
+                        text: "Meminta Dani membantu teman-temannya yang kesulitan.",
+                        rationale: "Meskipun bisa menjadi bentuk kontribusi, ini tidak secara langsung memberikan tantangan akademik yang dibutuhkan Dani untuk berkembang.",
+                        isCorrect: false
+                    },
+                    {
+                        text: "Mengabaikan Dani dan fokus pada siswa yang lain yang lebih membutuhkan perhatian.",
+                        rationale: "Mengabaikan siswa berpotensi tinggi berarti membiarkan bakat mereka tidak berkembang secara optimal.",
+                        isCorrect: false
+                    }
+                ],
+                hint: "Strategi yang efektif memanfaatkan potensi dan minat siswa sebagai pendorong motivasi, dengan memberikan tantangan yang sesuai."
+            },
+            {
+                question: "37. Anda memiliki siswa dengan disabilitas penglihatan parsial. Bagaimana Anda menerapkan strategi pembelajaran yang sesuai untuk mendukung pembelajaran mereka pada materi 'Desain Grafis Dasar'?",
+                answerOptions: [
+                    {
+                        text: "Meminta siswa tersebut untuk tidak mengikuti praktik desain grafis karena akan sulit baginya.",
+                        rationale: "Ini diskriminatif dan tidak sesuai dengan prinsip pendidikan inklusif.",
+                        isCorrect: false
+                    },
+                    {
+                        text: "Menyediakan perangkat lunak desain grafis yang mendukung fitur aksesibilitas (misal: zoom tinggi, kontras warna yang bisa disesuaikan), menyediakan deskripsi verbal yang kaya untuk elemen visual, dan berpasangan dengan teman yang bisa membantu memberikan deskripsi tambahan atau navigasi.",
+                        rationale: "Strategi ini fokus pada adaptasi alat dan metode pembelajaran untuk memastikan aksesibilitas dan dukungan yang sesuai dengan kebutuhan disabilitas siswa.",
+                        isCorrect: true
+                    },
+                    {
+                        text: "Mengganti tugas desain grafis dengan tugas tertulis tentang sejarah desain.",
+                        rationale: "Ini mengubah esensi pembelajaran dan tidak memberikan kesempatan siswa untuk mengembangkan keterampilan desain.",
+                        isCorrect: false
+                    },
+                    {
+                        text: "Meminta siswa untuk hanya fokus pada desain berbasis teks.",
+                        rationale: "Meskipun teks lebih mudah diakses, membatasi sepenuhnya pengalaman visual siswa tidak sesuai dengan tujuan pembelajaran desain grafis.",
+                        isCorrect: false
+                    }
+                ],
+                hint: "Fokus pada penyediaan akses dan dukungan yang disesuaikan agar siswa dapat berpartisipasi penuh dalam aktivitas pembelajaran."
+            },
+            {
+                question: "38. Kelas Anda terdiri dari siswa dengan beragam tingkat kemahiran dalam pemrograman (dari pemula hingga semi-mahir). Bagaimana Anda menerapkan strategi pembelajaran yang sesuai dengan keragaman kebutuhan belajar ini untuk pembelajaran yang inklusif?",
+                answerOptions: [
+                    {
+                        text: "Mengajar materi untuk siswa paling lambat agar tidak ada yang tertinggal.",
+                        rationale: "Ini akan membuat siswa yang lebih mahir merasa bosan dan tidak tertantang.",
+                        isCorrect: false
+                    },
+                    {
+                        text: "Menggunakan 'flipped classroom' di mana materi dasar dipelajari di rumah melalui video/modul, dan waktu kelas digunakan untuk 'lab sessions' interaktif di mana guru memberikan bimbingan individual atau kelompok kecil sesuai level kebutuhan siswa, serta siswa mahir dapat menjadi mentor sebaya.",
+                        rationale: "Pendekatan ini memungkinkan siswa belajar dengan kecepatan mereka sendiri untuk materi dasar, dan guru bisa melakukan diferensiasi instruksi di kelas sesuai kebutuhan individual atau kelompok.",
+                        isCorrect: true
+                    },
+                    {
+                        text: "Memberikan tugas yang sama persis untuk semua siswa agar semua mendapat pengalaman yang setara.",
+                        rationale: "Kesetaraan dalam tugas tidak selalu berarti kesetaraan dalam pengalaman belajar atau tantangan yang relevan.",
+                        isCorrect: false
+                    },
+                    {
+                        text: "Membiarkan siswa yang kesulitan mencari tahu sendiri atau bertanya kepada teman.",
+                        rationale: "Ini tidak memberikan dukungan yang memadai dari guru dan bisa menyebabkan siswa tertinggal lebih jauh.",
+                        isCorrect: false
+                    }
+                ],
+                hint: "Pembelajaran inklusif berarti mengakomodasi berbagai tingkat kemahiran dalam satu ruang kelas, seringkali dengan memanfaatkan fleksibilitas waktu belajar dan peran guru yang bervariasi."
+            },
+            {
+                question: "39. Anda akan mengajarkan materi 'Representasi Data Digital (Teks, Gambar, Suara)'. Bagaimana Anda menggunakan kurikulum dalam proses pembelajaran yang berpusat pada peserta didik?",
+                answerOptions: [
+                    {
+                        text: "Membacakan bab dari buku kurikulum tentang representasi data dan meminta siswa membuat rangkuman.",
+                        rationale: "Ini adalah pendekatan guru-sentris yang kurang melibatkan siswa secara aktif.",
+                        isCorrect: false
+                    },
+                    {
+                        text: "Merancang proyek mini di mana siswa diberi tugas untuk mengubah teks, gambar, dan suara menjadi bentuk 'kode' sederhana (misal: menggunakan Sandi Caesar untuk teks, representasi piksel sederhana untuk gambar, notasi biner untuk suara) dan mempresentasikan bagaimana komputer 'melihat' data tersebut.",
+                        rationale: "Ini adalah penerapan kurikulum yang berpusat pada siswa karena mereka secara aktif 'menciptakan' representasi dan memahami konsep melalui eksplorasi dan presentasi.",
+                        isCorrect: true
+                    },
+                    {
+                        text: "Memastikan semua siswa mendapatkan skor sempurna pada bab ini.",
+                        rationale: "Fokus pada skor daripada proses pembelajaran tidak berpusat pada siswa.",
+                        isCorrect: false
+                    },
+                    {
+                        text: "Menjelaskan konsep dengan detail teknis kepada siswa yang cepat menangkap.",
+                        rationale: "Ini hanya mengakomodasi sebagian kecil siswa dan tidak memastikan pembelajaran yang berpusat pada semua peserta didik.",
+                        isCorrect: false
+                    }
+                ],
+                hint: "Kurikulum yang berpusat pada peserta didik melibatkan siswa dalam aktivitas eksplorasi dan kreasi, bukan hanya konsumsi informasi."
+            },
+            {
+                question: "40. Setelah asesmen sumatif tentang 'Pemrograman Dasar dengan Kondisi dan Perulangan', Anda mendapati banyak siswa masih kesulitan. Bagaimana Anda menerapkan asesmen formatif untuk meningkatkan pembelajaran yang berpusat pada peserta didik?",
+                answerOptions: [
+                    {
+                        text: "Memberikan ulangan harian yang sama lagi untuk melihat apakah mereka bisa menjawabnya.",
+                        rationale: "Mengulang asesmen sumatif tidak memberikan umpan balik formatif untuk perbaikan.",
+                        isCorrect: false
+                    },
+                    {
+                        text: "Memberikan kuis interaktif singkat yang hanya fokus pada bagian yang sulit (misal: soal tentang kondisi bersarang atau loop di dalam loop), lalu langsung mendiskusikan jawaban yang salah dan memberikan contoh-contoh tambahan di kelas.",
+                        rationale: "Asesmen formatif yang efektif harus terfokus, cepat, dan diikuti dengan umpan balik dan instruksi yang memandu perbaikan langsung.",
+                        isCorrect: true
+                    },
+                    {
+                        text: "Meminta siswa yang sudah bisa untuk membantu teman-temannya tanpa intervensi guru.",
+                        rationale: "Meskipun peer tutoring baik, peran guru dalam asesmen formatif untuk mengidentifikasi dan mengatasi kesulitan secara sistematis tetap penting.",
+                        isCorrect: false
+                    },
+                    {
+                        text: "Mengabaikan hasil tersebut dan melanjutkan ke materi berikutnya karena waktu terbatas.",
+                        rationale: "Ini akan menyebabkan siswa terus kesulitan di materi berikutnya karena fondasinya belum kuat.",
+                        isCorrect: false
+                    }
+                ],
+                hint: "Asesmen formatif bukan tentang nilai, melainkan tentang diagnosis dan bimbingan untuk perbaikan pembelajaran di tengah jalan."
+            },
+            {
+                question: "41. Anda menemukan bahwa siswa sering kehilangan motivasi saat menghadapi tugas pemrograman yang terasa sangat sulit. Bagaimana Anda menerapkan strategi untuk meningkatkan pembelajaran yang berpusat pada peserta didik?",
+                answerOptions: [
+                    {
+                        text: "Mengurangi tingkat kesulitan semua tugas agar siswa tidak merasa terbebani.",
+                        rationale: "Mengurangi kesulitan secara drastis dapat menghambat pengembangan keterampilan dan pemikiran kritis.",
+                        isCorrect: false
+                    },
+                    {
+                        text: "Memecah tugas besar menjadi sub-tugas yang lebih kecil dan terkelola (dekomposisi), memberikan panduan (scaffolding) bertahap, serta merayakan setiap pencapaian kecil untuk menjaga motivasi dan rasa percaya diri siswa.",
+                        rationale: "Strategi ini sesuai dengan teori motivasi dan karakteristik peserta didik, menjadikan pembelajaran lebih terkelola dan berpusat pada progres individu siswa.",
+                        isCorrect: true
+                    },
+                    {
+                        text: "Meminta siswa yang paling pintar untuk mengerjakan tugas tersebut agar bisa menjadi contoh.",
+                        rationale: "Ini mengabaikan kebutuhan belajar siswa lain dan tidak membantu mereka mengatasi kesulitan pribadi.",
+                        isCorrect: false
+                    },
+                    {
+                        text: "Memberikan hadiah bagi yang berhasil menyelesaikan tugas paling cepat.",
+                        rationale: "Fokus pada kecepatan daripada pemahaman dan proses dapat mengganggu motivasi intrinsik.",
+                        isCorrect: false
+                    }
+                ],
+                hint: "Strategi yang efektif untuk tugas sulit adalah memecahnya menjadi bagian-bagian yang lebih kecil dan memberikan dukungan bertahap."
+            },
+            {
+                question: "42. Untuk meningkatkan capaian belajar literasi digital (memahami informasi online) dan numerasi (analisis data sederhana) peserta didik, strategi pembelajaran yang efektif adalah...",
+                answerOptions: [
+                    {
+                        text: "Memberikan lebih banyak soal hitungan dan tugas membaca teks panjang.",
+                        rationale: "Kuantitas saja tidak menjamin peningkatan kualitas; metode pembelajaran yang efektif lebih penting.",
+                        isCorrect: false
+                    },
+                    {
+                        text: "Menerapkan pembelajaran berbasis proyek yang melibatkan pengumpulan data (numerasi) dari sumber online (literasi digital), verifikasi kebenaran informasi, visualisasi data, dan penyajian kesimpulan dari analisis data tersebut.",
+                        rationale: "Strategi ini mengintegrasikan literasi digital dan numerasi secara autentik, melatih berpikir kritis, dan menghasilkan produk nyata.",
+                        isCorrect: true
+                    },
+                    {
+                        text: "Meminta siswa menghafal fakta-fakta tentang internet dan statistik data.",
+                        rationale: "Menghafal tidak mengembangkan keterampilan literasi dan numerasi praktis.",
+                        isCorrect: false
+                    },
+                    {
+                        text: "Mengundang ahli literasi dan numerasi untuk memberikan ceramah di sekolah.",
+                        rationale: "Ceramah bersifat pasif dan tidak memberikan pengalaman belajar langsung yang dibutuhkan siswa untuk mengembangkan keterampilan ini.",
+                        isCorrect: false
+                    }
+                ],
+                hint: "Cari strategi yang menggabungkan kedua keterampilan (literasi dan numerasi) dalam konteks proyek yang menuntut analisis dan sintesis informasi."
+            },
+            {
+                question: "43. Anda menemukan bahwa siswa sering kesulitan dalam membedakan antara 'Browser Web' dan 'Mesin Pencari'. Bagaimana Anda menerapkan struktur pengetahuan konten yang relevan untuk mengatasi miskonsepsi ini?",
+                answerOptions: [
+                    {
+                        text: "Mengatakan berulang kali bahwa keduanya berbeda sampai siswa percaya.",
+                        rationale: "Ini adalah pengulangan tanpa penjelasan yang memadai untuk mengatasi miskonsepsi.",
+                        isCorrect: false
+                    },
+                    {
+                        text: "Menggunakan analogi: 'Browser web itu seperti kendaraan (mobil, motor) yang membawamu keliling dunia internet, sedangkan mesin pencari itu seperti peta atau pemandu jalan yang membantumu menemukan lokasi tertentu di dunia internet.'",
+                        rationale: "Analogi yang tepat membantu membangun pemahaman konseptual dengan menghubungkan ke hal yang sudah dikenal siswa, sehingga mengatasi miskonsepsi.",
+                        isCorrect: true
+                    },
+                    {
+                        text: "Memberikan kuis definisi berulang kali.",
+                        rationale: "Kuis definisi tidak selalu efektif untuk mengatasi miskonsepsi yang mendalam.",
+                        isCorrect: false
+                    },
+                    {
+                        text: "Meminta siswa untuk menemukan perbedaan dari buku teks.",
+                        rationale: "Meskipun bisa, analogi langsung lebih efektif untuk miskonsepsi umum.",
+                        isCorrect: false
+                    }
+                ],
+                hint: "Gunakan analogi yang kuat untuk memisahkan dua konsep yang sering tertukar."
+            },
+            {
+                question: "44. Seorang guru Informatika ingin memanfaatkan minat siswa pada game online untuk mengajarkan konsep 'Jaringan Komputer' secara lebih mendalam. Bagaimana ia menerapkan pengetahuan konten yang relevan untuk mencapai tujuan pembelajaran ini?",
+                answerOptions: [
+                    {
+                        text: "Meminta siswa bermain game online selama pelajaran.",
+                        rationale: "Ini hanya aktivitas hiburan, bukan pembelajaran terarah.",
+                        isCorrect: false
+                    },
+                    {
+                        text: "Mengajak siswa menganalisis bagaimana game online yang mereka mainkan terhubung (server, client, latency, bandwidth), dan apa peran komponen jaringan dalam pengalaman bermain game mereka.",
+                        rationale: "Pendekatan ini memanfaatkan minat siswa sebagai jembatan untuk memahami konsep teknis yang relevan dengan pengalaman mereka, membuat pembelajaran lebih kontekstual dan mendalam.",
+                        isCorrect: true
+                    },
+                    {
+                        text: "Menyuruh siswa menghafal semua jenis port jaringan yang digunakan game online.",
+                        rationale: "Ini adalah detail teknis yang tidak relevan untuk pemahaman konsep jaringan secara umum.",
+                        isCorrect: false
+                    },
+                    {
+                        text: "Membuat aturan yang melarang siswa bermain game online di sekolah.",
+                        rationale: "Ini adalah tindakan kontrol, bukan pemanfaatan minat siswa untuk pembelajaran.",
+                        isCorrect: false
+                    }
+                ],
+                hint: "Hubungkan hobi siswa dengan konsep teknis di baliknya untuk membuat pembelajaran lebih relevan."
+            },
+            {
+                question: "45. Anda ingin siswa memahami pentingnya 'Backup Data'. Bagaimana Anda mengorganisasikan pengetahuan konten yang relevan untuk menyusun alur tujuan pembelajaran yang logis?",
+                answerOptions: [
+                    {
+                        text: "Memulai dengan mengajarkan berbagai jenis perangkat lunak backup profesional.",
+                        rationale: "Ini terlalu teknis untuk pengenalan konsep dan lebih fokus pada alat daripada prinsip.",
+                        isCorrect: false
+                    },
+                    {
+                        text: "Mengajarkan risiko kehilangan data (misal: virus, kerusakan hardware, ketidaksengajaan), pentingnya memiliki salinan data di tempat terpisah, dan kemudian metode backup sederhana (misal: copy-paste ke flashdisk/cloud) beserta frekuensinya.",
+                        rationale: "Alur ini dimulai dengan masalah (risiko kehilangan data), kemudian menjelaskan solusi (backup), dan akhirnya cara melakukannya, yang merupakan organisasi pengetahuan yang sangat logis dan praktis.",
+                        isCorrect: true
+                    },
+                    {
+                        text: "Menugaskan siswa untuk membuat sistem backup sendiri menggunakan kode.",
+                        rationale: "Ini adalah tugas tingkat lanjut yang tidak sesuai untuk pengenalan konsep dasar.",
+                        isCorrect: false
+                    },
+                    {
+                        text: "Menyuruh siswa menghapus beberapa file mereka sendiri untuk melihat dampaknya.",
+                        rationale: "Pendekatan ini bisa merugikan dan tidak etis.",
+                        isCorrect: false
+                    }
+                ],
+                hint: "Organisasikan konten dengan memulai dari 'mengapa' (masalah), kemudian 'apa' (solusi), dan terakhir 'bagaimana' (metode)."
+            },
+            {
+                question: "46. Anda memiliki siswa yang sangat cepat memahami materi algoritma namun kesulitan dalam bekerja kelompok dan sering mendominasi. Bagaimana Anda menerapkan strategi pembelajaran yang sesuai dengan karakteristik siswa ini dan mendorong kolaborasi?",
+                answerOptions: [
+                    {
+                        text: "Membiarkan siswa tersebut bekerja sendiri agar tidak mengganggu kelompok lain.",
+                        rationale: "Ini tidak mengajarkan keterampilan kolaborasi yang penting bagi siswa tersebut.",
+                        isCorrect: false
+                    },
+                    {
+                        text: "Memberikan peran yang jelas dalam kelompok (misal: 'Pemimpin Tim Debugging' atau 'Fasilitator Ide') yang mengharuskan mereka untuk mendengarkan, membimbing, dan berinteraksi secara konstruktif dengan anggota lain, bukan hanya mengerjakan sendiri.",
+                        rationale: "Pendekatan ini memanfaatkan kekuatan siswa (pemahaman algoritma) sekaligus memberikan tantangan untuk mengembangkan keterampilan sosial dan kolaborasi.",
+                        isCorrect: true
+                    },
+                    {
+                        text: "Menurunkan tingkat kesulitan tugas agar semua siswa bisa mengimbanginya.",
+                        rationale: "Ini akan membuat siswa mahir tidak tertantang dan tidak mengatasi masalah dominasi.",
+                        isCorrect: false
+                    },
+                    {
+                        text: "Mengancam akan mengurangi nilainya jika tidak mau bekerja sama.",
+                        rationale: "Pendekatan ini bersifat punitif dan tidak membangun motivasi intrinsik untuk berkolaborasi.",
+                        isCorrect: false
+                    }
+                ],
+                hint: "Libatkan siswa dalam peran yang mengharuskan mereka tidak hanya menunjukkan kemampuan teknis, tetapi juga keterampilan kepemimpinan dan komunikasi dalam tim."
+            },
+            {
+                question: "47. Di kelas Anda ada siswa yang berasal dari keluarga yang sangat menjaga privasi dan khawatir tentang penggunaan data pribadi di internet. Bagaimana Anda menerapkan strategi pembelajaran yang sesuai dengan latar belakang sosial dan budaya ini saat mengajarkan materi 'Privasi Online'?",
+                answerOptions: [
+                    {
+                        text: "Mengabaikan kekhawatiran tersebut dan tetap mengajarkan materi secara umum.",
+                        rationale: "Ini tidak menunjukkan empati atau penyesuaian terhadap latar belakang siswa.",
+                        isCorrect: false
+                    },
+                    {
+                        text: "Memulai diskusi dengan menghargai pandangan siswa dan orang tua tentang privasi, menjelaskan manfaat dan risiko berbagi data secara transparan, serta memberikan strategi praktis untuk mengelola pengaturan privasi online agar sesuai dengan nilai-nilai keluarga mereka.",
+                        rationale: "Pendekatan ini menghargai latar belakang siswa, membangun komunikasi yang empatik, dan memberikan solusi praktis yang sesuai dengan kebutuhan mereka.",
+                        isCorrect: true
+                    },
+                    {
+                        text: "Menyuruh siswa untuk tidak menggunakan internet sama sekali jika mereka sangat khawatir privasi.",
+                        rationale: "Ini adalah solusi yang tidak realistis dan membatasi akses siswa terhadap teknologi yang penting.",
+                        isCorrect: false
+                    },
+                    {
+                        text: "Mengadakan pertemuan khusus dengan orang tua tersebut untuk meyakinkan mereka bahwa internet aman.",
+                        rationale: "Meskipun komunikasi dengan orang tua penting, fokusnya adalah pada pemberdayaan siswa dengan keterampilan, bukan hanya meyakinkan orang tua.",
+                        isCorrect: false
+                    }
+                ],
+                hint: "Libatkan nilai-nilai dan kekhawatiran siswa dalam diskusi, dan berikan solusi praktis yang menghormati latar belakang mereka."
+            },
+            {
+                question: "48. Seorang siswa menunjukkan minat besar pada 'pembuatan konten digital' (misal: video editing, podcasting). Bagaimana Anda menerapkan strategi pembelajaran yang sesuai dengan potensi, minat, dan cara belajar siswa tersebut?",
+                answerOptions: [
+                    {
+                        text: "Meminta siswa untuk fokus pada materi kurikulum standar saja karena itu yang akan diujikan.",
+                        rationale: "Ini mengabaikan minat dan potensi siswa, yang dapat mengurangi motivasi dan kreativitas.",
+                        isCorrect: false
+                    },
+                    {
+                        text: "Memberikan proyek opsional yang memungkinkan siswa menggunakan keterampilan editing video/audio untuk membuat 'video tutorial singkat' tentang materi Informatika yang baru dipelajari, atau 'podcast' tentang dampak teknologi, dengan bimbingan dan rubrik yang relevan.",
+                        rationale: "Strategi ini memanfaatkan minat spesifik siswa, memungkinkan mereka belajar dengan cara yang disukai (membuat konten), dan menghubungkan keterampilan tersebut dengan tujuan pembelajaran Informatika.",
+                        isCorrect: true
+                    },
+                    {
+                        text: "Menyuruh siswa untuk hanya menonton tutorial online tentang editing video.",
+                        rationale: "Ini bersifat pasif dan tidak memberikan kesempatan bagi siswa untuk menerapkan keterampilan secara mandiri.",
+                        isCorrect: false
+                    },
+                    {
+                        text: "Mengurangi beban tugas Informatics untuk siswa tersebut agar bisa fokus pada hobinya.",
+                        rationale: "Ini tidak mengintegrasikan hobinya ke dalam pembelajaran dan bisa berarti pengurangan pembelajaran Informatics.",
+                        isCorrect: false
+                    }
+                ],
+                hint: "Integrasikan minat siswa ke dalam tugas-tugas yang relevan dengan mata pelajaran, memungkinkan mereka belajar sambil mengejar hobi."
+            },
+            {
+                question: "49. Anda memiliki siswa dengan disabilitas pendengaran. Bagaimana Anda menerapkan strategi pembelajaran yang sesuai untuk mendukung pembelajaran mereka pada materi 'Multimedia Interaktif' (terutama yang melibatkan audio)?",
+                answerOptions: [
+                    {
+                        text: "Mengabaikan komponen audio dan hanya fokus pada elemen visual dalam multimedia.",
+                        rationale: "Ini membatasi pengalaman belajar siswa dan mengabaikan bagian dari materi.",
+                        isCorrect: false
+                    },
+                    {
+                        text: "Memastikan semua konten audio dilengkapi dengan transkrip teks atau subtitle yang akurat, menggunakan visualisasi suara (misal: waveform audio), dan memberikan instruksi yang jelas secara visual atau melalui bahasa isyarat jika memungkinkan.",
+                        rationale: "Strategi ini memastikan aksesibilitas penuh terhadap materi audio bagi siswa dengan disabilitas pendengaran, sesuai dengan prinsip pembelajaran inklusif.",
+                        isCorrect: true
+                    },
+                    {
+                        text: "Menugaskan siswa tersebut untuk mengerjakan tugas individu yang tidak melibatkan audio.",
+                        rationale: "Ini mengisolasi siswa dan mencegah partisipasi penuh dalam pembelajaran multimedia.",
+                        isCorrect: false
+                    },
+                    {
+                        text: "Meminta siswa untuk menggunakan alat bantu dengar yang lebih canggih.",
+                        rationale: "Meskipun alat bantu dengar penting, guru harus tetap mengadaptasi materi untuk memastikan aksesibilitas, bukan hanya bergantung pada teknologi bantuan siswa.",
+                        isCorrect: false
+                    }
+                ],
+                hint: "Fokus pada penyediaan alternatif visual atau tekstual untuk konten audio, serta komunikasi yang jelas secara non-verbal."
+            },
+            {
+                question: "50. Kelas Anda sangat beragam dalam hal latar belakang teknologi di rumah; beberapa siswa memiliki komputer dan internet, yang lain tidak. Bagaimana Anda menerapkan strategi pembelajaran yang sesuai dengan keragaman kebutuhan belajar ini untuk pembelajaran yang inklusif dalam topik 'Eksplorasi Aplikasi Daring'?",
+                answerOptions: [
+                    {
+                        text: "Meminta semua siswa untuk mengakses aplikasi daring dari rumah agar mereka belajar mandiri.",
+                        rationale: "Ini tidak inklusif karena mengasumsikan akses yang setara di rumah.",
+                        isCorrect: false
+                    },
+                    {
+                        text: "Membuat aktivitas inti di laboratorium komputer sekolah dengan pendampingan, menyediakan alternatif 'offline' atau 'unplugged' untuk konsep yang sama, dan memberikan kesempatan bagi siswa untuk menggunakan perangkat mereka sendiri jika mereka punya (BYOD) untuk eksplorasi lebih lanjut dengan pengawasan.",
+                        rationale: "Pendekatan ini memastikan semua siswa memiliki akses ke materi inti di sekolah, memberikan alternatif bagi yang tidak punya akses di rumah, dan mengintegrasikan perangkat pribadi secara terkontrol untuk inklusivitas.",
+                        isCorrect: true
+                    },
+                    {
+                        text: "Mengelompokkan siswa berdasarkan akses teknologi yang mereka miliki di rumah.",
+                        rationale: "Pengelompokan permanen berdasarkan akses dapat menciptakan divisi dan mengurangi kesempatan kolaborasi antar kelompok yang berbeda.",
+                        isCorrect: false
+                    },
+                    {
+                        text: "Hanya menggunakan aplikasi yang bisa diinstal di komputer sekolah agar semua sama.",
+                        rationale: "Ini membatasi eksplorasi siswa terhadap berbagai aplikasi daring yang relevan dan tidak memanfaatkan teknologi secara adaptif.",
+                        isCorrect: false
+                    }
+                ],
+                hint: "Inklusivitas berarti memastikan setiap siswa, tanpa memandang latar belakang, memiliki kesempatan yang sama untuk belajar."
+            }
+        ];
+
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let userAnswers = []; // Untuk menyimpan jawaban pengguna dan jawaban benar untuk review
+
+        const quizContainer = document.getElementById('quiz-container');
+        const questionArea = document.getElementById('question-area');
+        const questionNumberElement = questionArea.querySelector('.question-number');
+        const questionTextElement = questionArea.querySelector('.question-text');
+        const optionsContainer = document.getElementById('options-container');
+        const submitAnswerBtn = document.getElementById('submit-answer');
+        const nextQuestionBtn = document.getElementById('next-question');
+        const restartQuizBtn = document.getElementById('restart-quiz');
+        const resultContainer = document.getElementById('result-container');
+        const scoreElement = document.getElementById('score');
+        const totalQuestionsElement = document.getElementById('total-questions');
+        const reviewAnswersBtn = document.getElementById('review-answers');
+        const restartQuizResultsBtn = document.getElementById('restart-quiz-results');
+        const answerReviewContainer = document.getElementById('answer-review-container');
+        const reviewList = document.getElementById('review-list');
+        const backToResultsBtn = document.getElementById('back-to-results');
+
+        function loadQuestion() {
+            if (currentQuestionIndex < questions.length) {
+                const q = questions[currentQuestionIndex];
+                questionNumberElement.textContent = `Soal ${currentQuestionIndex + 1} dari ${questions.length}`;
+                questionTextElement.textContent = q.question;
+                optionsContainer.innerHTML = ''; // Hapus opsi sebelumnya
+
+                q.answerOptions.forEach(option => {
+                    const button = document.createElement('button');
+                    button.classList.add('btn', 'btn-outline-primary', 'option-button');
+                    button.textContent = option.text;
+                    button.addEventListener('click', () => selectOption(button));
+                    optionsContainer.appendChild(button);
+                });
+
+                submitAnswerBtn.classList.remove('d-none');
+                nextQuestionBtn.classList.add('d-none');
+                restartQuizBtn.classList.add('d-none'); // Sembunyikan tombol restart saat kuis berjalan
+                clearOptionSelection(); // Bersihkan pilihan sebelumnya
+                document.querySelectorAll('.option-button').forEach(btn => btn.disabled = false); // Aktifkan kembali opsi
+            } else {
+                showResults();
+            }
+        }
+
+        function selectOption(selectedButton) {
+            clearOptionSelection();
+            selectedButton.classList.add('selected');
+        }
+
+        function clearOptionSelection() {
+            document.querySelectorAll('.option-button').forEach(btn => {
+                btn.classList.remove('selected', 'correct', 'incorrect');
+            });
+        }
+
+        function checkAnswer() {
+            const selectedOption = document.querySelector('.option-button.selected');
+            if (!selectedOption) {
+                alert('Mohon pilih jawaban terlebih dahulu!');
+                return;
+            }
+
+            const userAnswerText = selectedOption.textContent;
+            const currentQuestion = questions[currentQuestionIndex];
+            const selectedOptionData = currentQuestion.answerOptions.find(opt => opt.text === userAnswerText);
+
+            const isCorrect = selectedOptionData ? selectedOptionData.isCorrect : false;
+
+            userAnswers.push({
+                question: currentQuestion.question,
+                yourAnswer: userAnswerText,
+                correctAnswers: currentQuestion.answerOptions.filter(opt => opt.isCorrect).map(opt => opt.text),
+                isCorrect: isCorrect,
+                rationale: selectedOptionData ? selectedOptionData.rationale : ''
+            });
+
+            if (isCorrect) {
+                score++;
+                selectedOption.classList.add('correct');
+            } else {
+                selectedOption.classList.add('incorrect');
+                // Sorot jawaban yang benar juga
+                document.querySelectorAll('.option-button').forEach(btn => {
+                    const optionData = currentQuestion.answerOptions.find(opt => opt.text === btn.textContent);
+                    if (optionData && optionData.isCorrect) {
+                        btn.classList.add('correct');
+                    }
+                });
+            }
+
+            // Nonaktifkan semua opsi setelah menjawab
+            document.querySelectorAll('.option-button').forEach(btn => btn.disabled = true);
+
+            submitAnswerBtn.classList.add('d-none');
+            nextQuestionBtn.classList.remove('d-none');
+            
+            if (currentQuestionIndex === questions.length - 1) {
+                nextQuestionBtn.textContent = 'Lihat Hasil';
+            } else {
+                nextQuestionBtn.textContent = 'Soal Selanjutnya';
+            }
+        }
+
+        function showResults() {
+            quizContainer.classList.add('d-none');
+            resultContainer.classList.remove('d-none');
+            scoreElement.textContent = score;
+            totalQuestionsElement.textContent = questions.length;
+        }
+
+        function nextQuestion() {
+            currentQuestionIndex++;
+            if (currentQuestionIndex < questions.length) {
+                loadQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        function restartQuiz() {
+            currentQuestionIndex = 0;
+            score = 0;
+            userAnswers = [];
+            quizContainer.classList.remove('d-none');
+            resultContainer.classList.add('d-none');
+            answerReviewContainer.classList.add('d-none'); // Sembunyikan review jika terlihat
+            loadQuestion();
+        }
+
+        function reviewAnswers() {
+            resultContainer.classList.add('d-none');
+            answerReviewContainer.classList.remove('d-none');
+            reviewList.innerHTML = ''; // Hapus review sebelumnya
+
+            userAnswers.forEach((item, index) => {
+                const reviewItem = document.createElement('div');
+                reviewItem.classList.add('review-item');
+                const yourAnswerClass = item.isCorrect ? 'text-success' : 'text-danger';
+                const correctAnswersText = item.correctAnswers.join(' / '); // Gabungkan semua jawaban benar jika ada beberapa
+
+                reviewItem.innerHTML = `
+                    <p><strong>Soal ${index + 1}:</strong> ${item.question}</p>
+                    <p>Jawaban Anda: <span class="${yourAnswerClass} your-answer">${item.yourAnswer}</span></p>
+                    <p>Jawaban Benar: <span class="correct-answer">${correctAnswersText}</span></p>
+                `;
+                reviewList.appendChild(reviewItem);
+            });
+        }
+
+        // Event Listeners
+        submitAnswerBtn.addEventListener('click', checkAnswer);
+        nextQuestionBtn.addEventListener('click', nextQuestion);
+        restartQuizBtn.addEventListener('click', restartQuiz); // Tombol ini saat ini tersembunyi saat kuis
+        reviewAnswersBtn.addEventListener('click', reviewAnswers);
+        restartQuizResultsBtn.addEventListener('click', restartQuiz);
+        backToResultsBtn.addEventListener('click', () => {
+            answerReviewContainer.classList.add('d-none');
+            resultContainer.classList.remove('d-none');
+        });
+
+        // Muat soal pertama saat halaman dimuat
+        document.addEventListener('DOMContentLoaded', loadQuestion);
+    </script>
+</body>
+</html>
