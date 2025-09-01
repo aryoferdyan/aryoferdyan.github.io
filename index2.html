@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Volleyball Scoreboard & Assessment Tool</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <style>
+        body {
+            background-color: #f0f2f5;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .control-panel .card, .display-panel .card {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border: none;
+            border-radius: 10px;
+        }
+        .btn-group-custom .btn {
+            margin: 4px;
+            border-radius: 8px !important;
+            font-weight: 500;
+        }
+        .player-btn { min-width: 120px; }
+        .action-btn { min-width: 120px; }
+        .btn.active {
+            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.5);
+            transform: scale(1.05);
+        }
+        .substitution-mode {
+            background-color: #e7f3ff;
+            border: 1px solid #0d6efd;
+        }
+        .scoreboard { font-size: 5rem; font-weight: bold; color: #333; }
+        .timer-display { font-size: 2.5rem; font-weight: 600; color: #495057; }
+        .set-scores { font-size: 1.2rem; }
+        .log-container { max-height: 450px; overflow-y: auto; }
+        .shortcut-badge { font-size: 0.75em; vertical-align: middle; margin-left: 8px; background-color: #6c757d; }
+        .status-success { background-color: #28a745; color: white; }
+        .status-good { background-color: #17a2b8; color: white; }
+        .status-bad { background-color: #ffc107; color: black; }
+        .status-fail { background-color: #dc3545; color: white; }
+    </style>
+</head>
+<body>
+
+    <div class="container-fluid my-4">
+        <div class="text-center mb-4">
+            <h2>Volleyball Scoreboard & Assessment Tool</h2>
+            <!-- <p class="text-muted">Gunakan mouse atau shortcut keyboard untuk mencatat aksi.</p> -->
+        </div>
+
+        <div class="row">
+
+            <div class="col-lg-5 control-panel">
+                <div class="card" id="control-card">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                             <h5>1. Pilih Pemain</h5>
+                             <button id="substitute-btn" class="btn btn-sm btn-primary">Ganti Pemain</button>
+                        </div>
+                        <div id="substitution-status" class="alert alert-info d-none" role="alert"></div>
+                        <h6>Pemain di Inti</h6>
+                        <div id="on-court-players" class="btn-group-custom d-flex flex-wrap mb-3"></div>
+                        <h6>Pemain Cadangan</h6>
+                        <div id="bench-players" class="btn-group-custom d-flex flex-wrap"></div>
+                        <hr>
+
+                        <div class="mb-4">
+                            <h5>2. Pilih Aksi (Q,W,E,R)</h5>
+                            <div class="btn-group-custom d-flex flex-wrap">
+                                <button class="btn btn-outline-primary action-btn" id="action-serve" data-action="Serve">Serve <span class="badge shortcut-badge">Q</span></button>
+                                <button class="btn btn-outline-primary action-btn" id="action-receive" data-action="Receive">Receive <span class="badge shortcut-badge">W</span></button>
+                                <button class="btn btn-outline-primary action-btn" id="action-block" data-action="Block">Block <span class="badge shortcut-badge">E</span></button>
+                                <button class="btn btn-outline-primary action-btn" id="action-attack" data-action="Attack">Attack <span class="badge shortcut-badge">R</span></button>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <h5>3. Pilih Status (A,S,D,F)</h5>
+                            <div class="btn-group-custom d-flex flex-wrap">
+                                <button class="btn btn-success" id="status-success" data-status="Success">Success (Point) <span class="badge shortcut-badge">A</span></button>
+                                <button class="btn btn-info" id="status-good" data-status="Good">Good <span class="badge shortcut-badge">S</span></button>
+                                <button class="btn btn-warning" id="status-bad" data-status="Bad">Bad <span class="badge shortcut-badge">D</span></button>
+                                <button class="btn btn-danger" id="status-fail" data-status="Fail">Fail (Lawan Point) <span class="badge shortcut-badge">F</span></button>
+                            </div>
+                        </div>
+                        
+                        <hr>
+                        <div>
+                            <h5>Aksi Umum</h5>
+                             <button id="enemy-fault-btn" class="btn btn-info">Kesalahan Lawan <span class="badge shortcut-badge">P</span></button>
+                        </div>
+                        </div>
+                </div>
+                 <div class="text-center mt-3">
+                    <button id="reset-game" class="btn btn-lg btn-danger">Reset Game</button>
+                </div>
+            </div>
+
+            <div class="col-lg-7 display-panel mt-4 mt-lg-0">
+                <div class="card mb-3">
+                    <div class="card-header text-center"><h4>Set <span id="current-set">1</span></h4></div>
+                    <div class="card-body text-center">
+                        <div class="row align-items-center">
+                            <div class="col">
+                                <h3>TIM A</h3>
+                                <div id="teamA-score" class="scoreboard">0</div>
+                            </div>
+                            <div class="col-1"><span style="font-size: 3rem;">-</span></div>
+                            <div class="col">
+                                <h3>TIM B</h3>
+                                <div id="teamB-score" class="scoreboard">0</div>
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="mt-3">
+                            <h5 class="text-muted">TIMER</h5>
+                            <div id="timer-display" class="timer-display">00:00</div>
+                            <div class="mt-2 d-flex justify-content-center gap-2">
+                                <button id="start-timer-btn" class="btn btn-sm btn-success">Start</button>
+                                <button id="pause-timer-btn" class="btn btn-sm btn-warning">Pause</button>
+                                <button id="reset-timer-btn" class="btn btn-sm btn-danger">Reset</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card mb-3">
+                     <div class="card-body text-center">
+                        <h5>Skor Set</h5>
+                        <div class="set-scores d-flex justify-content-around">
+                            <div><strong>TIM A:</strong> <span id="teamA-sets" class="badge bg-primary fs-6">0</span></div>
+                            <div><strong>TIM B:</strong> <span id="teamB-sets" class="badge bg-danger fs-6">0</span></div>
+                        </div>
+                     </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header"><h5>Riwayat Aksi</h5></div>
+                    <div class="card-body p-0">
+                        <div class="log-container">
+                            <table class="table table-striped table-sm mb-0">
+                                <thead class="table-dark sticky-top">
+                                    <tr><th>#</th><th>Pemain</th><th>Aksi</th><th>Hasil</th></tr>
+                                </thead>
+                                <tbody id="log-body"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // --- STATE MANAGEMENT ---
+        let state = {};
+        let timerInterval = null;
+        let timeInSeconds = 0;
+
+        // --- DOM Elements ---
+        const actionButtons = document.querySelectorAll('[data-action]');
+        const statusButtons = document.querySelectorAll('[data-status]');
+        const resetGameBtn = document.getElementById('reset-game');
+        const teamAScoreEl = document.getElementById('teamA-score');
+        const teamBScoreEl = document.getElementById('teamB-score');
+        const teamASetsEl = document.getElementById('teamA-sets');
+        const teamBSetsEl = document.getElementById('teamB-sets');
+        const currentSetEl = document.getElementById('current-set');
+        const logBodyEl = document.getElementById('log-body');
+        const timerDisplayEl = document.getElementById('timer-display');
+        const startTimerBtn = document.getElementById('start-timer-btn');
+        const pauseTimerBtn = document.getElementById('pause-timer-btn');
+        const resetTimerBtn = document.getElementById('reset-timer-btn');
+        const substituteBtn = document.getElementById('substitute-btn');
+        const onCourtPlayersContainer = document.getElementById('on-court-players');
+        const benchPlayersContainer = document.getElementById('bench-players');
+        const substitutionStatusEl = document.getElementById('substitution-status');
+        const controlCardEl = document.getElementById('control-card');
+        const enemyFaultBtn = document.getElementById('enemy-fault-btn'); // Tombol baru
+
+        // --- INITIALIZATION ---
+        function createInitialPlayers() {
+            return Array.from({ length: 12 }, (_, i) => ({ id: i + 1, status: i < 6 ? 'on-court' : 'bench' }));
+        }
+
+        function initializeState() {
+            state = {
+                players: createInitialPlayers(),
+                currentPlayer: null, currentAction: null,
+                substitution: { active: false, playerToSwap: null },
+                logCounter: 0,
+                scores: { teamA: 0, teamB: 0 },
+                sets: { teamA: 0, teamB: 0 },
+                currentSet: 1, gameOver: false,
+            };
+        }
+
+        // --- PLAYER & SUBSTITUTION FUNCTIONS ---
+        function renderPlayers() {
+            onCourtPlayersContainer.innerHTML = '';
+            benchPlayersContainer.innerHTML = '';
+            state.players.forEach(player => {
+                const button = document.createElement('button');
+                button.id = `player-${player.id}`;
+                button.dataset.playerId = player.id;
+                button.textContent = `Pemain ${player.id}`;
+                button.classList.add('btn', 'player-btn');
+                if(player.status === 'on-court') {
+                    button.classList.add('btn-outline-secondary');
+                    if (player.id >= 1 && player.id <= 6) {
+                        button.innerHTML += ` <span class="badge shortcut-badge">${player.id}</span>`;
+                    }
+                    onCourtPlayersContainer.appendChild(button);
+                } else {
+                    button.classList.add('btn-light', 'btn-sm');
+                    benchPlayersContainer.appendChild(button);
+                }
+                button.addEventListener('click', () => handlePlayerClick(player.id));
+            });
+        }
+
+        function handlePlayerClick(playerId) {
+            const player = state.players.find(p => p.id === playerId);
+            if (!player) return;
+            if (state.substitution.active) {
+                handleSubstitutionClick(player);
+            } else {
+                if (player.status === 'on-court') {
+                    selectPlayer(playerId);
+                } else {
+                    alert('Pemain ini tidak di lapangan. Lakukan substitusi terlebih dahulu.');
+                }
+            }
+        }
+
+        function toggleSubstitutionMode() {
+            state.substitution.active = !state.substitution.active;
+            state.substitution.playerToSwap = null;
+            if(state.substitution.active) {
+                substitutionStatusEl.textContent = 'Pilih pemain di lapangan untuk diganti.';
+                substitutionStatusEl.classList.remove('d-none');
+                controlCardEl.classList.add('substitution-mode');
+                substituteBtn.textContent = 'Batal';
+                substituteBtn.classList.replace('btn-primary', 'btn-danger');
+                resetSelections();
+            } else {
+                substitutionStatusEl.classList.add('d-none');
+                controlCardEl.classList.remove('substitution-mode');
+                substituteBtn.textContent = 'Ganti Pemain';
+                substituteBtn.classList.replace('btn-danger', 'btn-primary');
+            }
+        }
+
+        function handleSubstitutionClick(clickedPlayer) {
+            if (!state.substitution.playerToSwap) {
+                if (clickedPlayer.status === 'on-court') {
+                    state.substitution.playerToSwap = clickedPlayer;
+                    substitutionStatusEl.textContent = `Pilih pemain cadangan untuk menggantikan Pemain ${clickedPlayer.id}.`;
+                    document.getElementById(`player-${clickedPlayer.id}`).classList.add('active');
+                } else { alert('Pilih pemain dari lapangan terlebih dahulu.'); }
+            } else {
+                if (clickedPlayer.status === 'bench') {
+                    state.substitution.playerToSwap.status = 'bench';
+                    clickedPlayer.status = 'on-court';
+                    state.logCounter++;
+                    logBodyEl.prepend(createLogEntry(`SUBSTITUSI: Pemain ${clickedPlayer.id} masuk, Pemain ${state.substitution.playerToSwap.id} keluar.`));
+                    toggleSubstitutionMode();
+                    renderPlayers();
+                } else { alert('Pilih pemain dari bangku cadangan.'); }
+            }
+        }
+        
+        function selectPlayer(playerId) {
+            state.currentPlayer = playerId;
+            document.querySelectorAll('.player-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.playerId == playerId));
+        }
+
+        // --- CORE GAME LOGIC ---
+        function selectAction(action) {
+            state.currentAction = action;
+            actionButtons.forEach(btn => btn.classList.toggle('active', btn.dataset.action === action));
+        }
+
+        function recordStatus(status) {
+            if (state.gameOver) return alert('Game sudah selesai!');
+            if (!state.currentPlayer || !state.currentAction) return alert('Pilih pemain dan aksi terlebih dahulu!');
+            
+            state.logCounter++;
+            const newRow = document.createElement('tr');
+            newRow.innerHTML = `<td>${state.logCounter}</td><td>Pemain ${state.currentPlayer}</td><td>${state.currentAction}</td><td><span class="badge w-100 p-2 status-${status.toLowerCase()}">${status}</span></td>`;
+            logBodyEl.prepend(newRow);
+
+            if (status === 'Success') addPoint('teamA');
+            else if (status === 'Fail') addPoint('teamB');
+            resetSelections();
+        }
+        
+        function handleEnemyFault() {
+            if (state.gameOver) return alert('Game sudah selesai!');
+            addPoint('teamA');
+            state.logCounter++;
+            logBodyEl.prepend(createLogEntry(`POIN: Kesalahan Lawan`));
+        }
+
+        function createLogEntry(message) {
+            const row = document.createElement('tr');
+            row.innerHTML = `<td colspan="4" class="text-center text-muted fst-italic">${message}</td>`;
+            return row;
+        }
+
+        function addPoint(team) {
+            state.scores[team]++;
+            updateScoreboard();
+            checkSetWin();
+        }
+        
+        function checkSetWin() {
+            const winScore = state.currentSet === 5 ? 15 : 25;
+            const { teamA, teamB } = state.scores;
+            if ((teamA >= winScore && teamA >= teamB + 2) || (teamB >= winScore && teamB >= teamA + 2)) {
+                winSet(teamA > teamB ? 'teamA' : 'teamB');
+            }
+        }
+
+        function winSet(team) {
+            state.sets[team]++;
+            updateSetScores();
+            if (state.sets[team] === 3) endGame(team);
+            else startNextSet();
+        }
+
+        function startNextSet() {
+            state.currentSet++;
+            state.scores = { teamA: 0, teamB: 0 };
+            updateScoreboard();
+            currentSetEl.textContent = state.currentSet;
+        }
+
+        function endGame(winner) {
+            state.gameOver = true;
+            pauseTimer();
+            const winnerName = winner === 'teamA' ? 'TIM A' : 'TIM B';
+            setTimeout(() => alert(`Game Selesai! Pemenangnya adalah ${winnerName}`), 100);
+        }
+
+        function resetSelections() {
+            state.currentPlayer = null;
+            state.currentAction = null;
+            document.querySelectorAll('.player-btn.active, .action-btn.active').forEach(btn => btn.classList.remove('active'));
+        }
+
+        function resetGame() {
+            if (!confirm('Apakah Anda yakin ingin mereset seluruh game?')) return;
+            initializeState();
+            renderPlayers();
+            if(state.substitution.active) toggleSubstitutionMode();
+            logBodyEl.innerHTML = '';
+            updateScoreboard();
+            updateSetScores();
+            currentSetEl.textContent = '1';
+            resetSelections();
+            resetTimer();
+        }
+
+        // --- TIMER FUNCTIONS ---
+        function runTimer() {
+            timeInSeconds++;
+            const minutes = Math.floor(timeInSeconds / 60);
+            const seconds = timeInSeconds % 60;
+            timerDisplayEl.textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+        }
+        function startTimer() { if (timerInterval === null) timerInterval = setInterval(runTimer, 1000); }
+        function pauseTimer() { clearInterval(timerInterval); timerInterval = null; }
+        function resetTimer() { pauseTimer(); timeInSeconds = 0; timerDisplayEl.textContent = '00:00'; }
+
+        // --- UI UPDATE FUNCTIONS ---
+        function updateScoreboard() { teamAScoreEl.textContent = state.scores.teamA; teamBScoreEl.textContent = state.scores.teamB; }
+        function updateSetScores() { teamASetsEl.textContent = state.sets.teamA; teamBSetsEl.textContent = state.sets.teamB; }
+
+        // --- EVENT LISTENERS ---
+        actionButtons.forEach(btn => btn.addEventListener('click', () => selectAction(btn.dataset.action)));
+        statusButtons.forEach(btn => btn.addEventListener('click', () => recordStatus(btn.dataset.status)));
+        resetGameBtn.addEventListener('click', resetGame);
+        startTimerBtn.addEventListener('click', startTimer);
+        pauseTimerBtn.addEventListener('click', pauseTimer);
+        resetTimerBtn.addEventListener('click', resetTimer);
+        substituteBtn.addEventListener('click', toggleSubstitutionMode);
+        enemyFaultBtn.addEventListener('click', handleEnemyFault); // Listener untuk tombol baru
+
+        document.addEventListener('keydown', (e) => {
+            const key = e.key.toLowerCase();
+            if (state.substitution.active) return; // Nonaktifkan shortcut lain saat mode substitusi
+            
+            if (key >= '1' && key <= '6') {
+                e.preventDefault();
+                const playerOnCourtWithId = state.players.find(p => p.id == key && p.status === 'on-court');
+                if (playerOnCourtWithId) handlePlayerClick(parseInt(key));
+            }
+            const actionMap = { q: 'Serve', w: 'Receive', e: 'Block', r: 'Attack' };
+            if (actionMap[key]) { e.preventDefault(); selectAction(actionMap[key]); }
+            const statusMap = { a: 'Success', s: 'Good', d: 'Bad', f: 'Fail' };
+            if (statusMap[key]) { e.preventDefault(); recordStatus(statusMap[key]); }
+            if (key === 'p') { e.preventDefault(); handleEnemyFault(); } // Shortcut untuk tombol baru
+        });
+
+        // --- INITIAL RUN ---
+        initializeState();
+        renderPlayers();
+    });
+    </script>
+</body>
+</html>
